@@ -1,0 +1,70 @@
+<Window x:Class="WDM.Views.NoteWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="便签"
+        Width="320"
+        Height="340"
+        MinWidth="240"
+        MinHeight="220"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False"
+        UseLayoutRounding="True"
+        TextOptions.TextFormattingMode="Display">
+
+    <Grid>
+        <Border Style="{StaticResource GlassPanelStyle}" Padding="16,12,16,14">
+            <DockPanel>
+
+                <!-- ===== 标题栏（可拖动） ===== -->
+                <Grid DockPanel.Dock="Top" Margin="0,0,0,8" Background="Transparent"
+                      MouseLeftButtonDown="Header_MouseLeftButtonDown">
+                    <TextBox Text="便签"
+                               Style="{StaticResource GlassInputTextBoxStyle}"
+                               VerticalAlignment="Center" Margin="0,0,203,0"/>
+                    <Button Content="✕"
+                            HorizontalAlignment="Right"
+                            Style="{StaticResource GlassGhostIconButtonStyle}"
+                            Click="CloseButton_Click"
+                            ToolTip="删除"/>
+                </Grid>
+
+                <!-- ===== 便签正文 ===== -->
+                <Grid>
+                    <TextBox x:Name="NoteBox"
+                             Style="{StaticResource GlassInputTextBoxStyle}"
+                             AcceptsReturn="True"
+                             TextWrapping="Wrap"
+                             VerticalScrollBarVisibility="Auto"
+                             VerticalContentAlignment="Top"
+                             FontSize="13"
+                             TextChanged="NoteBox_TextChanged"/>
+                    <TextBlock Text="记下来更有效…"
+                               IsHitTestVisible="False"
+                               Margin="4,6,0,0"
+                               VerticalAlignment="Top">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource GlassCaptionTextStyle}">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Text, ElementName=NoteBox}" Value="">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </Grid>
+
+            </DockPanel>
+        </Border>
+
+        <!-- 右下角拖拽缩放 -->
+        <Thumb Style="{StaticResource PanelResizeGripStyle}"
+               HorizontalAlignment="Right" VerticalAlignment="Bottom"
+               Margin="0,0,5,5"
+               DragDelta="ResizeThumb_DragDelta"/>
+    </Grid>
+</Window>

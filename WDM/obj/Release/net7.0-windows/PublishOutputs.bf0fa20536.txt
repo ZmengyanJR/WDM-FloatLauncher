@@ -1,0 +1,7 @@
+D:\personalprogram\VSIDE\WinDesktopManager\WinDeskManager\WDM.exe
+D:\personalprogram\VSIDE\WinDesktopManager\WinDeskManager\effect.wav
+D:\personalprogram\VSIDE\WinDesktopManager\WinDeskManager\Resources\app.ico
+D:\personalprogram\VSIDE\WinDesktopManager\WinDeskManager\WDM.dll
+D:\personalprogram\VSIDE\WinDesktopManager\WinDeskManager\WDM.deps.json
+D:\personalprogram\VSIDE\WinDesktopManager\WinDeskManager\WDM.runtimeconfig.json
+D:\personalprogram\VSIDE\WinDesktopManager\WinDeskManager\WDM.pdb

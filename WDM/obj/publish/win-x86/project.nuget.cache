@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "sRLk00YeA6dS8K663t8imsA4vfsLVB/R9sqRq/dCoMZjOK+bN5lo8rMDVkAv6pd5ZDdtNgvNBM4HWSzDR3mTvA==",
+  "success": true,
+  "projectFilePath": "D:\\personalprogram\\VSIDE\\WinDesktopManager\\WDM\\WDM\\WDM.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\。。。。\\.nuget\\packages\\microsoft.netcore.app.runtime.win-x86\\7.0.9\\microsoft.netcore.app.runtime.win-x86.7.0.9.nupkg.sha512",
+    "C:\\Users\\。。。。\\.nuget\\packages\\microsoft.windowsdesktop.app.runtime.win-x86\\7.0.9\\microsoft.windowsdesktop.app.runtime.win-x86.7.0.9.nupkg.sha512",
+    "C:\\Users\\。。。。\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.win-x86\\7.0.9\\microsoft.aspnetcore.app.runtime.win-x86.7.0.9.nupkg.sha512"
+  ],
+  "logs": []
+}

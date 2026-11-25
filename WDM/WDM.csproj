@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net7.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <!-- 应用程序图标（同时用于：exe 文件图标、任务栏图标、托盘图标默认值） -->
+    <ApplicationIcon>Resources\app.ico</ApplicationIcon>
+    <!-- 程序集标题（显示在托盘 tooltip 等位置） -->
+    <AssemblyTitle>WDM - 桌面悬浮管理器</AssemblyTitle>
+    <AssemblyDescription>桌面整理与快捷启动工具</AssemblyDescription>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Resources 文件夹下的图标文件作为内容发布到输出目录 -->
+    <None Update="Resources\app.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <!-- 鼠标悬浮音效：随程序一起复制到输出目录，SoundService 运行时按相对路径加载 -->
+    <None Update="effect.wav">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

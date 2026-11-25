@@ -1,0 +1,357 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--
+        ============================================================
+        WDM 全局主题资源
+        ============================================================
+        统一管理所有界面用到的颜色、画刷、特效、文本样式和控件样式。
+        新增界面时只引用这里的资源，不要在页面内重复定义颜色。
+
+        视觉两套风格：
+          1. 深色调音台风（设置中心）：深色渐变面板 + 青色高亮
+          2. 浅色毛玻璃风（便签 / 待办面板）：半透明浅色 + 白色描边
+        两者共用同一个强调色 AccentColor。
+        ============================================================
+    -->
+
+    <!-- ==================== 色板 ==================== -->
+    <Color x:Key="AccentColor">#FF2CC7F7</Color>
+    <Color x:Key="AccentHoverColor">#FF6BDDFF</Color>
+
+    <!-- 布尔 → 可见性：用于"开启后才显示"的附加设置（如色调滑轨） -->
+    <BooleanToVisibilityConverter x:Key="BooleanToVisibility"/>
+
+    <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource AccentColor}"/>
+    <SolidColorBrush x:Key="AccentHoverBrush" Color="{StaticResource AccentHoverColor}"/>
+    <SolidColorBrush x:Key="AccentSoftBrush" Color="#552CC7F7"/>
+
+    <!-- 深色面板（设置中心） -->
+    <LinearGradientBrush x:Key="PanelDarkBrush" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#F5181C22" Offset="0"/>
+        <GradientStop Color="#F50D0F13" Offset="1"/>
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="PanelStrokeBrush" Color="#33FFFFFF"/>
+    <SolidColorBrush x:Key="TextPrimaryBrush" Color="#EAF7FB"/>
+    <SolidColorBrush x:Key="TextMutedBrush" Color="#7F93A0"/>
+    <SolidColorBrush x:Key="DividerBrush" Color="#1FFFFFFF"/>
+    <SolidColorBrush x:Key="RowHoverBrush" Color="#12FFFFFF"/>
+
+    <!-- 浅色毛玻璃面板（便签 / 待办）：提高透光率，能透出壁纸 -->
+    <LinearGradientBrush x:Key="GlassBrush" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#B8F5F8FB" Offset="0"/>
+        <GradientStop Color="#98E8EEF2" Offset="1"/>
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="GlassStrokeBrush" Color="#CCFFFFFF"/>
+    <SolidColorBrush x:Key="GlassTextBrush" Color="#2B323A"/>
+    <SolidColorBrush x:Key="GlassTextMutedBrush" Color="#8A95A0"/>
+    <SolidColorBrush x:Key="GlassHoverBrush" Color="#40FFFFFF"/>
+    <SolidColorBrush x:Key="GlassDividerBrush" Color="#33808B95"/>
+
+    <!-- ==================== 特效 ==================== -->
+    <DropShadowEffect x:Key="PanelShadow" Color="#000000" BlurRadius="26" ShadowDepth="8" Opacity="0.5"/>
+    <DropShadowEffect x:Key="GlassShadow" Color="#000000" BlurRadius="22" ShadowDepth="5" Opacity="0.22"/>
+    <DropShadowEffect x:Key="AccentGlow" Color="{StaticResource AccentColor}" BlurRadius="12" ShadowDepth="0" Opacity="0.75"/>
+
+    <!-- ==================== 文本样式 ==================== -->
+
+    <!-- 深色面板标题（设置中心） -->
+    <Style x:Key="DarkTitleTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+    </Style>
+
+    <!-- 深色面板辅助文字 -->
+    <Style x:Key="DarkCaptionTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+    </Style>
+
+    <!-- 毛玻璃面板标题 -->
+    <Style x:Key="GlassTitleTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="15"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{DynamicResource GlassTextBrush}"/>
+    </Style>
+
+    <!-- 毛玻璃面板辅助文字 -->
+    <Style x:Key="GlassCaptionTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Foreground" Value="{DynamicResource GlassTextMutedBrush}"/>
+    </Style>
+
+    <!-- ==================== 面板容器 ==================== -->
+
+    <!-- 毛玻璃圆角面板：便签 / 待办窗口的根容器 -->
+    <Style x:Key="GlassPanelStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource GlassBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassStrokeBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="16"/>
+        <Setter Property="Effect" Value="{StaticResource GlassShadow}"/>
+    </Style>
+
+    <!-- 设置中心的功能行容器（悬停高亮） -->
+    <Style x:Key="SettingsRowStyle" TargetType="Border">
+        <Setter Property="Padding" Value="10,9"/>
+        <Setter Property="CornerRadius" Value="10"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{StaticResource RowHoverBrush}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- ==================== 设置中心功能行图标 ==================== -->
+
+    <!--
+        功能行图标统一规范：
+          外层 Border（本样式）：32×32 圆角底 + 淡青色边框
+          内层 TextBlock：Segoe MDL2 Assets 单色字形，统一 15px 青色
+        以后新增功能行，复制下面 3 行结构即可保持风格一致。
+    -->
+    <Style x:Key="SettingsIconBoxStyle" TargetType="Border">
+        <Setter Property="Width" Value="32"/>
+        <Setter Property="Height" Value="32"/>
+        <Setter Property="CornerRadius" Value="9"/>
+        <Setter Property="Background" Value="{StaticResource AccentSoftBrush}"/>
+        <Setter Property="BorderBrush" Value="#332CC7F7"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Margin" Value="0,0,12,0"/>
+    </Style>
+
+    <!-- 图标字形样式（Segoe MDL2 Assets，Windows 10+ 系统自带字体） -->
+    <Style x:Key="SettingsIconGlyphStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="Segoe MDL2 Assets"/>
+        <Setter Property="FontSize" Value="15"/>
+        <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <!-- ==================== 按钮样式 ==================== -->
+
+    <!-- 深色面板上的幽灵按钮（关闭 ✕ 等） -->
+    <Style x:Key="GhostIconButtonStyle" TargetType="Button">
+        <Setter Property="Width" Value="30"/>
+        <Setter Property="Height" Value="30"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="8">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="bd" Property="Background" Value="#1FFFFFFF"/>
+                            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="bd" Property="Background" Value="#30FFFFFF"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- 毛玻璃面板上的幽灵按钮 -->
+    <Style x:Key="GlassGhostIconButtonStyle" TargetType="Button">
+        <Setter Property="Width" Value="26"/>
+        <Setter Property="Height" Value="26"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Foreground" Value="{DynamicResource GlassTextMutedBrush}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="7">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="bd" Property="Background" Value="{DynamicResource GlassHoverBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource GlassTextBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="bd" Property="Background" Value="#66808B95"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- 强调色圆形加号按钮（设置中心 / 面板右上角） -->
+    <Style x:Key="AccentCircleButtonStyle" TargetType="Button">
+        <Setter Property="Width" Value="26"/>
+        <Setter Property="Height" Value="26"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FontSize" Value="15"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Foreground" Value="#071218"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="bd"
+                            Background="{StaticResource AccentBrush}"
+                            CornerRadius="13"
+                            Effect="{StaticResource AccentGlow}">
+                        <!-- 加号用矢量矩形绘制，保证在圆内精确居中（文字"＋"会偏移） -->
+                        <Grid Width="12" Height="12">
+                            <Rectangle Width="12" Height="2"
+                                       RadiusX="1" RadiusY="1"
+                                       Fill="#071218"/>
+                            <Rectangle Width="2" Height="12"
+                                       RadiusX="1" RadiusY="1"
+                                       Fill="#071218"/>
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="bd" Property="Background" Value="{StaticResource AccentHoverBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="bd" Property="Opacity" Value="0.8"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ==================== 开关样式（开机自启） ==================== -->
+    <Style x:Key="ToggleSwitchStyle" TargetType="CheckBox">
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="CheckBox">
+                    <Grid Width="44" Height="24">
+                        <Border x:Name="track"
+                                CornerRadius="12"
+                                Background="#26FFFFFF"
+                                BorderBrush="#33FFFFFF"
+                                BorderThickness="1"/>
+                        <Ellipse x:Name="thumb"
+                                 Width="16" Height="16"
+                                 Fill="#C9D6DD"
+                                 HorizontalAlignment="Left"
+                                 Margin="4,0,0,0"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="track" Property="Background" Value="{StaticResource AccentBrush}"/>
+                            <Setter TargetName="track" Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                            <Setter TargetName="thumb" Property="HorizontalAlignment" Value="Right"/>
+                            <Setter TargetName="thumb" Property="Margin" Value="0,0,4,0"/>
+                            <Setter TargetName="thumb" Property="Fill" Value="#071218"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="thumb" Property="Opacity" Value="0.85"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ==================== 面板缩放手柄 ==================== -->
+
+    <!--
+        便签 / 待办面板右下角的拖拽缩放热区。
+        统一使用两段斜线视觉提示，颜色跟随日间 / 夜间主题。
+    -->
+    <Style x:Key="PanelResizeGripStyle" TargetType="Thumb">
+        <Setter Property="Width" Value="16"/>
+        <Setter Property="Height" Value="16"/>
+        <Setter Property="Cursor" Value="SizeNWSE"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="ToolTip" Value="拖动调整大小"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Thumb">
+                    <Grid Background="Transparent">
+                        <Path Data="M 12,4 L 4,12 M 12,9 L 9,12"
+                              Stroke="{DynamicResource GlassTextMutedBrush}"
+                              StrokeThickness="1.4"
+                              StrokeStartLineCap="Round"
+                              StrokeEndLineCap="Round"
+                              Opacity="0.55"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ==================== 图标色调滑轨 ==================== -->
+
+    <!--
+        色相滑轨：轨道直接用彩虹渐变表示色相区间，滑块是发光圆点。
+        绑定的是科技图标色调 IconTone（0~360）。
+    -->
+    <Style x:Key="HueSliderStyle" TargetType="Slider">
+        <Setter Property="Height" Value="22"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Slider">
+                    <Grid VerticalAlignment="Center" Height="22">
+                        <Border Height="8" CornerRadius="4" Opacity="0.9">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                    <GradientStop Color="#FF5A6E" Offset="0"/>
+                                    <GradientStop Color="#FFD166" Offset="0.17"/>
+                                    <GradientStop Color="#7CE38B" Offset="0.33"/>
+                                    <GradientStop Color="#3ED9FF" Offset="0.53"/>
+                                    <GradientStop Color="#7B8CFF" Offset="0.72"/>
+                                    <GradientStop Color="#E07BFF" Offset="0.88"/>
+                                    <GradientStop Color="#FF5A6E" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                        </Border>
+                        <Track x:Name="PART_Track">
+                            <Track.Thumb>
+                                <Thumb Width="16" Height="16">
+                                    <Thumb.Template>
+                                        <ControlTemplate TargetType="Thumb">
+                                            <Ellipse Fill="#FFFFFF"
+                                                     Stroke="{StaticResource AccentBrush}"
+                                                     StrokeThickness="2"
+                                                     Effect="{StaticResource AccentGlow}"/>
+                                        </ControlTemplate>
+                                    </Thumb.Template>
+                                </Thumb>
+                            </Track.Thumb>
+                        </Track>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ==================== 输入框样式（玻璃面板内） ==================== -->
+    <Style x:Key="GlassInputTextBoxStyle" TargetType="TextBox">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Foreground" Value="{DynamicResource GlassTextBrush}"/>
+        <Setter Property="CaretBrush" Value="{StaticResource AccentBrush}"/>
+        <Setter Property="SelectionBrush" Value="{StaticResource AccentSoftBrush}"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="Padding" Value="2,4"/>
+    </Style>
+
+</ResourceDictionary>

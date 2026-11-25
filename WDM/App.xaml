@@ -1,0 +1,15 @@
+﻿<Application x:Class="WDM.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:WDM">
+    <!-- 移除 StartupUri="MainWindow.xaml"，改由 App.OnStartup 手动创建主窗口。
+         原因：单实例检测必须在窗口创建之前完成，否则第二个实例会先弹出窗口再退出。 -->
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- 全局主题：颜色 / 画刷 / 文本样式 / 按钮与面板样式 -->
+                <ResourceDictionary Source="Resources/Theme.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
