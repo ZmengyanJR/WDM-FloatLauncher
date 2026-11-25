@@ -59,6 +59,7 @@ namespace WDM
             // --- 应用已保存的日间 / 夜间主题 ---
             // 必须在创建任何面板之前执行，修改的是 Theme.xaml 中的共享画刷
             ThemeService.Apply(SettingsService.Current.NightMode);
+            ThemeService.ApplyAccent(SettingsService.Current.IconTone);
 
             // --- 创建并显示主窗口 ---
             // 注意：改手动创建后必须显式 Show()，原来 StartupUri 会自动 Show

@@ -32,6 +32,14 @@ namespace WDM.ViewModels
         private bool _nightMode;
         private bool _techIconMode;
         private string _gaugeTarget = "Dock";
+        private bool _showIconLabels;
+
+        /// <summary>图标模式行下方的下一级选项区域是否展开（UI 临时状态，关闭设置即重置）。</summary>
+        public bool ShowIconLabels
+        {
+            get => _showIconLabels;
+            set => SetProperty(ref _showIconLabels, value);
+        }
 
         /// <summary>
         /// 当前表盘调节目标：Dock（默认）/ Note / Todo / Icon。
@@ -100,6 +108,7 @@ namespace WDM.ViewModels
                 if (Math.Abs(SettingsService.Current.IconTone - clamped) < 0.5) return;
 
                 SettingsService.Current.IconTone = clamped;
+                ThemeService.ApplyAccent(clamped);
                 RaisePropertyChanged(nameof(IconTone));
 
                 if (GaugeTarget == "Icon")
@@ -155,6 +164,68 @@ namespace WDM.ViewModels
             }
         }
 
+        /// <summary>全局开关：在 Dock 图标下方显示多行发光应用名。</summary>
+        public bool ShowAppLabels
+        {
+            get => SettingsService.Current.ShowAppLabels;
+            set
+            {
+                if (SettingsService.Current.ShowAppLabels == value) return;
+
+                SettingsService.Current.ShowAppLabels = value;
+                SettingsService.Save();
+                App.RaiseConfigChanged();
+                RaisePropertyChanged();
+            }
+        }
+
+        /// <summary>应用名颜色跟随全局色调（true），否则默认白色。</summary>
+        public bool AppLabelColorFollowTone
+        {
+            get => SettingsService.Current.AppLabelColorFollowTone;
+            set
+            {
+                if (SettingsService.Current.AppLabelColorFollowTone == value) return;
+
+                SettingsService.Current.AppLabelColorFollowTone = value;
+                SettingsService.Save();
+                App.RaiseConfigChanged();
+                RaisePropertyChanged();
+            }
+        }
+
+        /// <summary>Dock 图标像素大小（28~64）。</summary>
+        public int DockIconSize
+        {
+            get => SettingsService.Current.DockIconSize;
+            set
+            {
+                int clamped = Math.Clamp(value, 28, 64);
+                if (SettingsService.Current.DockIconSize == clamped) return;
+
+                SettingsService.Current.DockIconSize = clamped;
+                SettingsService.Save();
+                App.RaiseConfigChanged();
+                RaisePropertyChanged();
+            }
+        }
+
+        /// <summary>应用名字体像素大小（7~16）。</summary>
+        public int AppLabelFontSize
+        {
+            get => SettingsService.Current.AppLabelFontSize;
+            set
+            {
+                int clamped = Math.Clamp(value, 7, 16);
+                if (SettingsService.Current.AppLabelFontSize == clamped) return;
+
+                SettingsService.Current.AppLabelFontSize = clamped;
+                SettingsService.Save();
+                App.RaiseConfigChanged();
+                RaisePropertyChanged();
+            }
+        }
+
         /// <summary>在桌面打开便签面板。</summary>
         public ICommand AddNoteCommand { get; }
 
@@ -191,6 +262,10 @@ namespace WDM.ViewModels
             RaisePropertyChanged(nameof(GaugeMinLabel));
             RaisePropertyChanged(nameof(GaugeMaxLabel));
             RaisePropertyChanged(nameof(GaugeCaption));
+
+            // 点击图标模式行：同时切换下一层级选项（显示应用名称 / 颜色跟随）的展开 / 收起
+            if (target == "Icon")
+                ShowIconLabels = GaugeTarget == "Icon";
         }
 
         /// <summary>表盘拖动：把 0~1 的位置映射成当前目标的值。</summary>

@@ -99,13 +99,12 @@ namespace WDM.Services
 
         private static void ShowTodo(AppConfig.TodoPanelEntry layout)
         {
-            var vm = new TodoViewModel(layout.Items);
+            var vm = new TodoViewModel(layout);
             var window = new TodoWindow(vm, layout);
             window.Opacity = SettingsService.Current.TodoOpacity;
             Todos.Add(window);
             window.Closed += (_, _) =>
             {
-                vm.Detach();
                 Todos.Remove(window);
                 // 用户点叉号删除的面板，不再参与下次恢复
                 if (window.Deleted && SettingsService.Current.TodoPanels.Remove(layout))
@@ -123,6 +122,24 @@ namespace WDM.Services
             }
             window.Show();
         }
+
+        /// <summary>取消置顶并把面板压到普通窗口底部，不激活窗口。</summary>
+        public static void SetBottom(Window window)
+        {
+            window.Topmost = false;
+            var handle = new System.Windows.Interop.WindowInteropHelper(window).Handle;
+            if (handle != IntPtr.Zero)
+                SetWindowPos(handle, HwndBottom, 0, 0, 0, 0, SwpNoMove | SwpNoSize | SwpNoActivate);
+        }
+
+        private static readonly IntPtr HwndBottom = new(1);
+        private const uint SwpNoMove = 0x0002;
+        private const uint SwpNoSize = 0x0001;
+        private const uint SwpNoActivate = 0x0010;
+
+        [System.Runtime.InteropServices.DllImport("user32.dll", SetLastError = true)]
+        private static extern bool SetWindowPos(
+            IntPtr hWnd, IntPtr hWndInsertAfter, int x, int y, int cx, int cy, uint flags);
 
         /// <summary>把当前配置的面板透明度应用到所有已打开的窗口。</summary>
         private static void ApplyOpacity()

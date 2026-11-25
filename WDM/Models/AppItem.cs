@@ -13,7 +13,6 @@ namespace WDM.Models
         private string _executablePath = string.Empty;
         private ImageSource? _icon;
         private string? _tooltip;
-
         /// <summary>应用显示名称</summary>
         public string Name
         {

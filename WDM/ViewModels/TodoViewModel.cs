@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
-using System.Windows.Media;
 using WDM.Models;
 using WDM.Services;
 
@@ -44,11 +43,22 @@ namespace WDM.ViewModels
     {
         /// <summary>该面板自己的持久化存储（面板之间互相独立）。</summary>
         private readonly List<AppConfig.TodoEntry> _storage;
+        private readonly AppConfig.TodoPanelEntry _panel;
 
         public ObservableCollection<TodoItemViewModel> Items { get; } = new();
 
-        /// <summary>待办圆点的强调色：色相跟随设置中心的图标色调滑轨。</summary>
-        public Brush AccentBrush { get; private set; } = CreateAccentBrush();
+        /// <summary>可自定义的面板标题。</summary>
+        public string Title
+        {
+            get => _panel.Title;
+            set
+            {
+                if (_panel.Title == value) return;
+                _panel.Title = value;
+                RaisePropertyChanged();
+                SettingsService.Save();
+            }
+        }
 
         /// <summary>切换完成状态（左键点击）。</summary>
         public ICommand ToggleCommand { get; }
@@ -56,9 +66,10 @@ namespace WDM.ViewModels
         /// <summary>删除待办（右键点击）。</summary>
         public ICommand RemoveCommand { get; }
 
-        public TodoViewModel(List<AppConfig.TodoEntry> storage)
+        public TodoViewModel(AppConfig.TodoPanelEntry panel)
         {
-            _storage = storage;
+            _panel = panel;
+            _storage = panel.Items;
             LoadFromConfig();
 
             ToggleCommand = new RelayCommand(p =>
@@ -69,29 +80,6 @@ namespace WDM.ViewModels
             {
                 if (p is TodoItemViewModel item) Remove(item);
             });
-
-            // 色调滑轨变化时刷新圆点颜色
-            App.ConfigChanged += OnConfigChanged;
-        }
-
-        /// <summary>窗口关闭时解绑全局事件，避免 ViewModel 泄漏。</summary>
-        public void Detach() => App.ConfigChanged -= OnConfigChanged;
-
-        private void OnConfigChanged()
-        {
-            var brush = CreateAccentBrush();
-            if (AccentBrush is SolidColorBrush old && old.Color == brush.Color) return;
-
-            AccentBrush = brush;
-            RaisePropertyChanged(nameof(AccentBrush));
-        }
-
-        private static SolidColorBrush CreateAccentBrush()
-        {
-            var brush = new SolidColorBrush(
-                IconExtractorService.HueColor(SettingsService.Current.IconTone));
-            brush.Freeze();
-            return brush;
         }
 
         /// <summary>新增一条待办（忽略空白内容）。</summary>

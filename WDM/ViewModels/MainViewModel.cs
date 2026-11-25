@@ -24,6 +24,18 @@ namespace WDM.ViewModels
         public ObservableCollection<AppItem> Apps { get; } = new();
         public ICommand LaunchCommand { get; }
 
+        /// <summary>全局开关：在 Dock 图标下方显示多行发光应用名。</summary>
+        public bool ShowAppLabels => SettingsService.Current.ShowAppLabels;
+
+        /// <summary>应用名颜色跟随全局色调（true），否则默认白色。</summary>
+        public bool AppLabelColorFollowTone => SettingsService.Current.AppLabelColorFollowTone;
+
+        /// <summary>Dock 图标像素大小（让 XAML 可以 DynamicResource 之外绑定）。</summary>
+        public int DockIconSize => SettingsService.Current.DockIconSize;
+
+        /// <summary>应用名字体大小。</summary>
+        public int AppLabelFontSize => SettingsService.Current.AppLabelFontSize;
+
         /// <summary>记录当前图标模式，避免透明度等频繁配置变更触发图标重算。</summary>
         private bool _techIconMode = SettingsService.Current.TechIconMode;
 
@@ -135,6 +147,12 @@ namespace WDM.ViewModels
         private void OnConfigChanged()
         {
             bool tech = SettingsService.Current.TechIconMode;
+
+            // 应用名相关开关、图标大小、字号：无论打开还是关闭都要通知 Dock
+            RaisePropertyChanged(nameof(ShowAppLabels));
+            RaisePropertyChanged(nameof(AppLabelColorFollowTone));
+            RaisePropertyChanged(nameof(DockIconSize));
+            RaisePropertyChanged(nameof(AppLabelFontSize));
             double tone = SettingsService.Current.IconTone;
 
             bool modeChanged = tech != _techIconMode;

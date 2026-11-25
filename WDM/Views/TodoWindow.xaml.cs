@@ -50,8 +50,13 @@ namespace WDM.Views
 
         private void Header_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
+            if (e.OriginalSource is System.Windows.Controls.TextBox) return; // 标题编辑时不拖动
             try { DragMove(); } catch { }
         }
+
+        private void TopmostMenuItem_Click(object sender, RoutedEventArgs e) => Topmost = true;
+
+        private void BottomMenuItem_Click(object sender, RoutedEventArgs e) => DesktopPanelService.SetBottom(this);
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {

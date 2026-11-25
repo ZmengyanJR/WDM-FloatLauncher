@@ -47,11 +47,16 @@
     <SolidColorBrush x:Key="GlassTextMutedBrush" Color="#8A95A0"/>
     <SolidColorBrush x:Key="GlassHoverBrush" Color="#40FFFFFF"/>
     <SolidColorBrush x:Key="GlassDividerBrush" Color="#33808B95"/>
+    <!-- 便签 / 待办面板的强调边框与发光，运行时由 ThemeService 按色调替换 -->
+    <SolidColorBrush x:Key="PanelAccentBrush" Color="{StaticResource AccentColor}"/>
 
     <!-- ==================== 特效 ==================== -->
     <DropShadowEffect x:Key="PanelShadow" Color="#000000" BlurRadius="26" ShadowDepth="8" Opacity="0.5"/>
     <DropShadowEffect x:Key="GlassShadow" Color="#000000" BlurRadius="22" ShadowDepth="5" Opacity="0.22"/>
     <DropShadowEffect x:Key="AccentGlow" Color="{StaticResource AccentColor}" BlurRadius="12" ShadowDepth="0" Opacity="0.75"/>
+    <DropShadowEffect x:Key="PanelAccentGlow" Color="{StaticResource AccentColor}" BlurRadius="10" ShadowDepth="0" Opacity="0.6"/>
+    <!-- 图标下方应用名的光晕：同色但半径更小 -->
+    <DropShadowEffect x:Key="PanelAccentGlowSoft" Color="{StaticResource AccentColor}" BlurRadius="6" ShadowDepth="0" Opacity="0.9"/>
 
     <!-- ==================== 文本样式 ==================== -->
 
@@ -86,10 +91,10 @@
     <!-- 毛玻璃圆角面板：便签 / 待办窗口的根容器 -->
     <Style x:Key="GlassPanelStyle" TargetType="Border">
         <Setter Property="Background" Value="{DynamicResource GlassBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource GlassStrokeBrush}"/>
-        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource PanelAccentBrush}"/>
+        <Setter Property="BorderThickness" Value="0.8"/>
         <Setter Property="CornerRadius" Value="16"/>
-        <Setter Property="Effect" Value="{StaticResource GlassShadow}"/>
+        <Setter Property="Effect" Value="{DynamicResource PanelAccentGlow}"/>
     </Style>
 
     <!-- 设置中心的功能行容器（悬停高亮） -->
@@ -267,6 +272,31 @@
         </Setter>
     </Style>
 
+    <!-- 小号开关：图标模式行下方"显示应用名"的勾选，比主开关小一圈 -->
+    <Style x:Key="MiniToggleSwitchStyle" TargetType="CheckBox" BasedOn="{StaticResource ToggleSwitchStyle}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="CheckBox">
+                    <Grid Width="28" Height="16">
+                        <Border x:Name="track" CornerRadius="8"
+                                Background="#26FFFFFF" BorderBrush="#33FFFFFF" BorderThickness="1"/>
+                        <Ellipse x:Name="thumb" Width="11" Height="11"
+                                 Fill="#C9D6DD" HorizontalAlignment="Left" Margin="2,0,0,0"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="track" Property="Background" Value="{StaticResource AccentBrush}"/>
+                            <Setter TargetName="track" Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                            <Setter TargetName="thumb" Property="HorizontalAlignment" Value="Right"/>
+                            <Setter TargetName="thumb" Property="Margin" Value="0,0,2,0"/>
+                            <Setter TargetName="thumb" Property="Fill" Value="#071218"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!-- ==================== 面板缩放手柄 ==================== -->
 
     <!--
@@ -306,11 +336,16 @@
     <Style x:Key="HueSliderStyle" TargetType="Slider">
         <Setter Property="Height" Value="22"/>
         <Setter Property="Cursor" Value="Hand"/>
+        <!-- 允许点击轨道任意位置立即跳转到对应色相，而不是只能拖动 -->
+        <Setter Property="IsMoveToPointEnabled" Value="True"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Slider">
                     <Grid VerticalAlignment="Center" Height="22">
-                        <Border Height="8" CornerRadius="4" Opacity="0.9">
+                        <!-- 彩虹轨道：Background 不能为 null，否则鼠标事件不会命中 -->
+                        <Border Height="8" CornerRadius="4" Opacity="0.9"
+                                Margin="0,7,0,7"
+                                IsHitTestVisible="True">
                             <Border.Background>
                                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
                                     <GradientStop Color="#FF5A6E" Offset="0"/>
@@ -323,7 +358,7 @@
                                 </LinearGradientBrush>
                             </Border.Background>
                         </Border>
-                        <Track x:Name="PART_Track">
+                        <Track x:Name="PART_Track" IsDirectionReversed="True">
                             <Track.Thumb>
                                 <Thumb Width="16" Height="16">
                                     <Thumb.Template>
@@ -352,6 +387,14 @@
         <Setter Property="SelectionBrush" Value="{StaticResource AccentSoftBrush}"/>
         <Setter Property="FontSize" Value="13"/>
         <Setter Property="Padding" Value="2,4"/>
+    </Style>
+
+    <!-- 毛玻璃面板可编辑标题：便签 / 待办共用，保证字号一致 -->
+    <Style x:Key="PanelTitleTextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource GlassInputTextBoxStyle}">
+        <Setter Property="FontSize" Value="15"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Padding" Value="2,0"/>
+        <Setter Property="MinWidth" Value="40"/>
     </Style>
 
 </ResourceDictionary>

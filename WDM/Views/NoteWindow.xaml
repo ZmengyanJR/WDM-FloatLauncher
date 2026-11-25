@@ -18,12 +18,19 @@
         <Border Style="{StaticResource GlassPanelStyle}" Padding="16,12,16,14">
             <DockPanel>
 
-                <!-- ===== 标题栏（可拖动） ===== -->
+                <!-- ===== 标题栏（左键拖动，右键置顶 / 置底） ===== -->
                 <Grid DockPanel.Dock="Top" Margin="0,0,0,8" Background="Transparent"
                       MouseLeftButtonDown="Header_MouseLeftButtonDown">
-                    <TextBox Text="便签"
-                               Style="{StaticResource GlassInputTextBoxStyle}"
-                               VerticalAlignment="Center" Margin="0,0,203,0"/>
+                    <Grid.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="置顶" Click="TopmostMenuItem_Click"/>
+                            <MenuItem Header="置底" Click="BottomMenuItem_Click"/>
+                        </ContextMenu>
+                    </Grid.ContextMenu>
+                    <TextBox Text="{Binding Title, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource PanelTitleTextBoxStyle}"
+                             ContextMenu="{Binding ContextMenu, RelativeSource={RelativeSource AncestorType=Grid}}"
+                             VerticalAlignment="Center" Margin="0,0,28,0"/>
                     <Button Content="✕"
                             HorizontalAlignment="Right"
                             Style="{StaticResource GlassGhostIconButtonStyle}"

@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="clr-namespace:WDM.ViewModels"
         Title="WDM - 桌面悬浮管理器"
-        Height="160" Width="Auto"
+        Height="180" Width="Auto"
         SizeToContent="Width"
         WindowStyle="None"
         AllowsTransparency="True"
@@ -94,13 +94,57 @@
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Button Style="{StaticResource DockIconButtonStyle}"
-                            ToolTip="{Binding Tooltip}"
-                            Command="{Binding DataContext.LaunchCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                            CommandParameter="{Binding}">
-                        <Image Source="{Binding Icon}" Stretch="Uniform"
-                               RenderOptions.BitmapScalingMode="HighQuality"/>
-                    </Button>
+                    <StackPanel HorizontalAlignment="Center" Margin="6,4">
+                        <Button Style="{StaticResource DockIconButtonStyle}"
+                                ToolTip="{Binding Tooltip}"
+                                Command="{Binding DataContext.LaunchCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                CommandParameter="{Binding}">
+                            <Button.Height>
+                                <Binding Path="DataContext.DockIconSize"
+                                         RelativeSource="{RelativeSource AncestorType=Window}"/>
+                            </Button.Height>
+                            <Button.Width>
+                                <Binding Path="DataContext.DockIconSize"
+                                         RelativeSource="{RelativeSource AncestorType=Window}"/>
+                            </Button.Width>
+                            <Image Source="{Binding Icon}" Stretch="Uniform"
+                                   RenderOptions.BitmapScalingMode="HighQuality"/>
+                        </Button>
+                        <TextBlock Text="{Binding Name}"
+                                   HorizontalAlignment="Center"
+                                   TextWrapping="Wrap"
+                                   TextAlignment="Center">
+                            <TextBlock.MaxWidth>
+                                <Binding Path="DataContext.DockIconSize"
+                                         RelativeSource="{RelativeSource AncestorType=Window}"/>
+                            </TextBlock.MaxWidth>
+                            <TextBlock.FontSize>
+                                <Binding Path="DataContext.AppLabelFontSize"
+                                         RelativeSource="{RelativeSource AncestorType=Window}"/>
+                            </TextBlock.FontSize>
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Setter Property="Foreground" Value="#FFFFFF"/>
+                                    <Setter Property="Effect" Value="{StaticResource PanelAccentGlowSoft}"/>
+                                    <Style.Triggers>
+                                        <!-- 图标模式行展开后：显示应用名 -->
+                                        <DataTrigger Binding="{Binding DataContext.ShowAppLabels,
+                                                        RelativeSource={RelativeSource AncestorType=Window}}"
+                                                     Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                        <!-- 颜色跟随全局色调时切换 Foreground（默认白色在上面 Setter） -->
+                                        <DataTrigger Binding="{Binding DataContext.AppLabelColorFollowTone,
+                                                        RelativeSource={RelativeSource AncestorType=Window}}"
+                                                     Value="True">
+                                            <Setter Property="Foreground" Value="{DynamicResource PanelAccentBrush}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </StackPanel>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>

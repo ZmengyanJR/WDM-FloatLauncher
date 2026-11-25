@@ -32,6 +32,8 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
             <!-- ===== 标题栏（可拖动） ===== -->
@@ -212,10 +214,10 @@
                 </Grid>
             </Border>
 
-            <!-- 图标模式：点击本行切换表盘为图标色调，再次点击返回 Dock -->
+            <!-- 霓虹模式：点击本行切换表盘为全局色调，再次点击返回 Dock -->
             <Border Grid.Row="9" Style="{StaticResource SettingsRowStyle}" Cursor="Hand"
                     Tag="Icon" MouseLeftButtonDown="PanelRow_MouseLeftButtonDown"
-                    ToolTip="点击调节图标色调">
+                    ToolTip="点击调节全局色调">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -228,8 +230,8 @@
                                    Foreground="#FF9E7A"/>
                     </Border>
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                        <TextBlock Text="图标模式" Style="{StaticResource DarkTitleTextStyle}"/>
-                        <TextBlock Text="开启科技霓虹；点击本行可调节色调"
+                        <TextBlock Text="霓虹模式" Style="{StaticResource DarkTitleTextStyle}"/>
+                        <TextBlock Text="点击本行可设置悬浮倒影图标具体参数"
                                    Style="{StaticResource DarkCaptionTextStyle}"
                                    Margin="0,2,0,0"/>
                     </StackPanel>
@@ -241,12 +243,103 @@
                 </Grid>
             </Border>
 
-            <!-- ===== 图标色调滑轨（仅科技模式可见） ===== -->
-            <StackPanel Grid.Row="10"
-                        Margin="10,4,10,0"
-                        Visibility="{Binding TechIconMode, Converter={StaticResource BooleanToVisibility}}">
+            <!-- ===== 霓虹模式下一级：显示应用名称 + 颜色跟随（默认隐藏，点击霓虹模式行展开） ===== -->
+            <StackPanel Grid.Row="10" Margin="22,4,0,0"
+                        Visibility="{Binding ShowIconLabels, Converter={StaticResource BooleanToVisibility}}">
+
+                <!-- 行 1：显示应用名称 -->
+                <Border Style="{StaticResource SettingsRowStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0"
+                                   Text="显示应用名称"
+                                   Style="{StaticResource DarkTitleTextStyle}"
+                                   VerticalAlignment="Center"
+                                   ToolTip="在 Dock 图标下方显示多行发光文字"/>
+                        <CheckBox Grid.Column="1"
+                                  Style="{StaticResource ToggleSwitchStyle}"
+                                  IsChecked="{Binding ShowAppLabels}"
+                                  VerticalAlignment="Center"
+                                  ToolTip="显示应用名称"/>
+                    </Grid>
+                </Border>
+
+                <!-- 行 2：名称颜色跟随全局色调 -->
+                <Border Style="{StaticResource SettingsRowStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0"
+                                   Text="名称颜色跟随全局色调"
+                                   Style="{StaticResource DarkTitleTextStyle}"
+                                   VerticalAlignment="Center"
+                                   ToolTip="选中则名称颜色与全局色调一致，否则默认白色"/>
+                        <CheckBox Grid.Column="1"
+                                  Style="{StaticResource ToggleSwitchStyle}"
+                                  IsChecked="{Binding AppLabelColorFollowTone}"
+                                  VerticalAlignment="Center"
+                                  ToolTip="选中则名称颜色跟随全局色调"/>
+                    </Grid>
+                </Border>
+
+                <!-- 行 3：图标大小 -->
+                <Border Style="{StaticResource SettingsRowStyle}" ToolTip="Dock 图标像素大小">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0"
+                                   Text="图标大小"
+                                   Style="{StaticResource DarkTitleTextStyle}"
+                                   VerticalAlignment="Center"/>
+                        <Slider Grid.Column="1"
+                                Minimum="28" Maximum="64"
+                                IsMoveToPointEnabled="True"
+                                Value="{Binding DockIconSize, Mode=TwoWay}"
+                                Height="18" Margin="12,0,8,0"/>
+                        <TextBlock Grid.Column="2"
+                                   Text="{Binding DockIconSize, StringFormat={}{0}px}"
+                                   Style="{StaticResource DarkCaptionTextStyle}"
+                                   VerticalAlignment="Center"/>
+                    </Grid>
+                </Border>
+
+                <!-- 行 4：字体大小 -->
+                <Border Style="{StaticResource SettingsRowStyle}" ToolTip="应用名的字体像素大小">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0"
+                                   Text="字体大小"
+                                   Style="{StaticResource DarkTitleTextStyle}"
+                                   VerticalAlignment="Center"/>
+                        <Slider Grid.Column="1"
+                                Minimum="7" Maximum="16"
+                                IsMoveToPointEnabled="True"
+                                Value="{Binding AppLabelFontSize, Mode=TwoWay}"
+                                Height="18" Margin="12,0,8,0"/>
+                        <TextBlock Grid.Column="2"
+                                   Text="{Binding AppLabelFontSize, StringFormat={}{0}px}"
+                                   Style="{StaticResource DarkCaptionTextStyle}"
+                                   VerticalAlignment="Center"/>
+                    </Grid>
+                </Border>
+            </StackPanel>
+
+            <!-- ===== 全局色调滑轨（始终显示：控制面板边框、应用名颜色、霓虹图标） ===== -->
+            <StackPanel Grid.Row="11" Margin="10,4,10,0">
                 <Grid Margin="0,0,2,0">
-                    <TextBlock Text="图标色调" Style="{StaticResource DarkCaptionTextStyle}"/>
+                    <TextBlock Text="全局色调" Style="{StaticResource DarkCaptionTextStyle}"/>
                     <TextBlock Text="{Binding IconTone, StringFormat={}{0:F0}°}"
                                HorizontalAlignment="Right"
                                Style="{StaticResource DarkCaptionTextStyle}"/>

@@ -29,6 +29,29 @@ namespace WDM.Services
             else ApplyDay();
         }
 
+        /// <summary>按设置中心的色相更新面板边框与发光资源，已打开的窗口会自动跟随。</summary>
+        public static void ApplyAccent(double hue)
+        {
+            if (Application.Current == null) return;
+
+            var color = IconExtractorService.HueColor(hue);
+            Application.Current.Resources["PanelAccentBrush"] = new SolidColorBrush(color);
+            Application.Current.Resources["PanelAccentGlow"] = new System.Windows.Media.Effects.DropShadowEffect
+            {
+                Color = color,
+                BlurRadius = 10,
+                ShadowDepth = 0,
+                Opacity = 0.6
+            };
+            Application.Current.Resources["PanelAccentGlowSoft"] = new System.Windows.Media.Effects.DropShadowEffect
+            {
+                Color = color,
+                BlurRadius = 6,
+                ShadowDepth = 0,
+                Opacity = 0.9
+            };
+        }
+
         // ========================================================================
         // 日间：浅色毛玻璃（保持原有视觉）
         // ========================================================================

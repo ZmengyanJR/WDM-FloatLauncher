@@ -28,7 +28,7 @@ namespace WDM.Models
         /// <summary>
         /// 是否在系统启动时自动运行本程序。
         /// </summary>
-        public bool AutoStart { get; set; } = false;
+        public bool AutoStart { get; set; } = true;
 
         /// <summary>
         /// 便签内容（旧版单便签字段，仅用于升级迁移）。
@@ -55,6 +55,18 @@ namespace WDM.Models
         /// <summary>图标模式：false=默认彩色；true=科技霓虹。</summary>
         public bool TechIconMode { get; set; } = false;
 
+        /// <summary>全局：在 Dock 图标下方显示应用名称（多行发光文字，不挤压图标）。</summary>
+        public bool ShowAppLabels { get; set; } = false;
+
+        /// <summary>应用名颜色跟随全局色调（true），否则默认白色。</summary>
+        public bool AppLabelColorFollowTone { get; set; } = false;
+
+        /// <summary>Dock 图标像素大小：28~64，默认 48。</summary>
+        public int DockIconSize { get; set; } = 48;
+
+        /// <summary>应用名文字像素大小：7~16，默认 10。</summary>
+        public int AppLabelFontSize { get; set; } = 10;
+
         /// <summary>
         /// 科技图标色调（色相，0~360°）。默认 192° 接近原来的冰蓝色。
         /// </summary>
@@ -66,6 +78,9 @@ namespace WDM.Models
         /// </summary>
         public class NoteEntry
         {
+            /// <summary>自定义标题</summary>
+            public string Title { get; set; } = "便签";
+
             /// <summary>便签文本</summary>
             public string Text { get; set; } = string.Empty;
 
@@ -87,6 +102,9 @@ namespace WDM.Models
         /// </summary>
         public class TodoPanelEntry
         {
+            /// <summary>自定义标题</summary>
+            public string Title { get; set; } = "待办事项";
+
             public double X { get; set; }
             public double Y { get; set; }
             public double Width { get; set; }
