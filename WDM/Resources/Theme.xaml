@@ -358,7 +358,7 @@
                                 </LinearGradientBrush>
                             </Border.Background>
                         </Border>
-                        <Track x:Name="PART_Track" IsDirectionReversed="True">
+                        <Track x:Name="PART_Track" IsDirectionReversed="False">
                             <Track.Thumb>
                                 <Thumb Width="16" Height="16">
                                     <Thumb.Template>

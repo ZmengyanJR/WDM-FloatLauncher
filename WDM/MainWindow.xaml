@@ -79,7 +79,7 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="60"/>
+            <RowDefinition Height="36"/>
         </Grid.RowDefinitions>
 
         <!-- 1. 图标行 -->
@@ -186,7 +186,7 @@
                 <VisualBrush Visual="{Binding ElementName=IconBar}"/>
             </Rectangle.Fill>
             <Rectangle.RenderTransform>
-                <ScaleTransform ScaleY="-1" CenterY="30"/>
+                <ScaleTransform ScaleY="-1" CenterY="18"/>
             </Rectangle.RenderTransform>
             <Rectangle.OpacityMask>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">

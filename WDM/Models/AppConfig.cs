@@ -65,7 +65,7 @@ namespace WDM.Models
         public int DockIconSize { get; set; } = 48;
 
         /// <summary>应用名文字像素大小：7~16，默认 10。</summary>
-        public int AppLabelFontSize { get; set; } = 10;
+        public int AppLabelFontSize { get; set; } = 9;
 
         /// <summary>
         /// 科技图标色调（色相，0~360°）。默认 192° 接近原来的冰蓝色。

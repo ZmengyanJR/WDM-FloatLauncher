@@ -31,7 +31,7 @@
                     <TextBox Text="{Binding Title, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource PanelTitleTextBoxStyle}"
                              ContextMenu="{Binding ContextMenu, RelativeSource={RelativeSource AncestorType=Grid}}"
-                             VerticalAlignment="Center" Margin="0,0,28,0"/>
+                             VerticalAlignment="Center" Margin="0,0,180,0"/>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Cursor="Hand">
                         <Button Content="✕"
                                 Style="{StaticResource GlassGhostIconButtonStyle}"
