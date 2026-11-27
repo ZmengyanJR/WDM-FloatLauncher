@@ -86,18 +86,18 @@ namespace WDM.Views
         /// </summary>
         private void BuildGauge()
         {
-            // 底弧（暗色轨道）
-            GaugeCanvas.Children.Add(new Path
+            // 底弧（轨道）：跟随皮肤的分隔色，浅色皮肤下也能看见
+            var baseArc = new Path
             {
                 Data = CreateArcGeometry(Radius),
-                Stroke = new SolidColorBrush(Color.FromArgb(0x1A, 0xFF, 0xFF, 0xFF)),
                 StrokeThickness = 12,
                 StrokeStartLineCap = PenLineCap.Round,
                 StrokeEndLineCap = PenLineCap.Round
-            });
+            };
+            baseArc.SetResourceReference(Shape.StrokeProperty, "DividerBrush");
+            GaugeCanvas.Children.Add(baseArc);
 
-            // 刻度：11 根，均分 180°
-            var tickBrush = new SolidColorBrush(Color.FromArgb(0x66, 0xFF, 0xFF, 0xFF));
+            // 刻度：11 根，均分 180°，颜色跟随皮肤辅助文字色
             for (int i = 0; i <= 10; i++)
             {
                 double angle = Math.PI * (1 - i / 10.0); // 180° → 0°
@@ -105,27 +105,29 @@ namespace WDM.Views
                 double inner = Radius + 8;
                 double outer = inner + (major ? 10 : 6);
 
-                GaugeCanvas.Children.Add(new Line
+                var tick = new Line
                 {
                     X1 = Cx + Math.Cos(angle) * inner,
                     Y1 = Cy - Math.Sin(angle) * inner,
                     X2 = Cx + Math.Cos(angle) * outer,
                     Y2 = Cy - Math.Sin(angle) * outer,
-                    Stroke = tickBrush,
-                    StrokeThickness = major ? 2 : 1
-                });
+                    StrokeThickness = major ? 2 : 1,
+                    Opacity = 0.6
+                };
+                tick.SetResourceReference(Shape.StrokeProperty, "TextMutedBrush");
+                GaugeCanvas.Children.Add(tick);
             }
 
-            // 高亮弧（强调色）
+            // 高亮弧：始终使用当前皮肤的强调色（不再被全局色调改成金色）
             var accentArc = new Path
             {
                 Data = CreateArcGeometry(Radius),
-                Stroke = (Brush)FindResource("AccentBrush"),
                 StrokeThickness = 4,
                 StrokeStartLineCap = PenLineCap.Round,
-                StrokeEndLineCap = PenLineCap.Round,
-                Effect = (System.Windows.Media.Effects.Effect)FindResource("AccentGlow")
+                StrokeEndLineCap = PenLineCap.Round
             };
+            accentArc.SetResourceReference(Shape.StrokeProperty, "AccentBrush");
+            accentArc.SetResourceReference(UIElement.EffectProperty, "AccentGlow");
             GaugeCanvas.Children.Add(accentArc);
 
             // 指针（默认指向正上方，由 RotateTransform 旋转）
@@ -148,9 +150,9 @@ namespace WDM.Views
                 Width = 12,
                 Height = 12,
                 Fill = new SolidColorBrush(Color.FromRgb(0x0B, 0x0E, 0x12)),
-                Stroke = (Brush)FindResource("AccentBrush"),
                 StrokeThickness = 2
             };
+            pivot.SetResourceReference(Shape.StrokeProperty, "AccentBrush");
             Canvas.SetLeft(pivot, Cx - 6);
             Canvas.SetTop(pivot, Cy - 6);
             GaugeCanvas.Children.Add(pivot);
@@ -231,6 +233,13 @@ namespace WDM.Views
         {
             if (sender is Border row)
                 Vm.SelectGaugeTarget(row.Tag?.ToString());
+            e.Handled = true;
+        }
+
+        /// <summary>打开记录面板（与托盘菜单共用同一个单实例入口）。</summary>
+        private void RecordsRow_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            App.OpenRecordsWindow();
             e.Handled = true;
         }
 

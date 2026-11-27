@@ -1,53 +1,53 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Windows.Input;
+using System.Linq;
 using WDM.Models;
 using WDM.Services;
 
 namespace WDM.ViewModels
 {
-    /// <summary>
-    /// 单条待办的运行时模型（带变更通知，供 UI 绑定）。
-    /// 与存储层的 AppConfig.TodoEntry 分离：存储层是纯数据，这里是可绑定对象。
-    /// </summary>
     public class TodoItemViewModel : ObservableObject
     {
+        private string _text;
         private bool _isDone;
+        private bool _isImportant;
 
-        /// <summary>待办内容（创建后不可变）。</summary>
-        public string Text { get; }
+        /// <summary>关联的记录 Id（同步 records.json）。</summary>
+        public string RecordId { get; set; } = string.Empty;
 
-        /// <summary>是否已完成（true 时 UI 显示删除线）。</summary>
+        public string Text
+        {
+            get => _text;
+            set => SetProperty(ref _text, value);
+        }
         public bool IsDone
         {
             get => _isDone;
             set => SetProperty(ref _isDone, value);
         }
-
-        public TodoItemViewModel(string text, bool isDone)
+        public bool IsImportant
         {
-            Text = text;
+            get => _isImportant;
+            set => SetProperty(ref _isImportant, value);
+        }
+
+        public TodoItemViewModel(string text, bool isDone, bool isImportant, string recordId = "")
+        {
+            _text = text;
             _isDone = isDone;
+            _isImportant = isImportant;
+            RecordId = recordId;
         }
     }
 
-    /// <summary>
-    /// 待办面板的 ViewModel。
-    ///
-    /// 职责：
-    ///   - 维护待办列表
-    ///   - 增 / 完成 / 删除操作
-    ///   - 每次变更后同步回 AppConfig 并落盘
-    /// </summary>
     public class TodoViewModel : ObservableObject
     {
-        /// <summary>该面板自己的持久化存储（面板之间互相独立）。</summary>
-        private readonly List<AppConfig.TodoEntry> _storage;
         private readonly AppConfig.TodoPanelEntry _panel;
+        private readonly List<AppConfig.TodoEntry> _storage;
 
         public ObservableCollection<TodoItemViewModel> Items { get; } = new();
 
-        /// <summary>可自定义的面板标题。</summary>
         public string Title
         {
             get => _panel.Title;
@@ -56,79 +56,100 @@ namespace WDM.ViewModels
                 if (_panel.Title == value) return;
                 _panel.Title = value;
                 RaisePropertyChanged();
-                SettingsService.Save();
+                Persist();
             }
         }
-
-        /// <summary>切换完成状态（左键点击）。</summary>
-        public ICommand ToggleCommand { get; }
-
-        /// <summary>删除待办（右键点击）。</summary>
-        public ICommand RemoveCommand { get; }
 
         public TodoViewModel(AppConfig.TodoPanelEntry panel)
         {
             _panel = panel;
             _storage = panel.Items;
             LoadFromConfig();
-
-            ToggleCommand = new RelayCommand(p =>
-            {
-                if (p is TodoItemViewModel item) Toggle(item);
-            });
-            RemoveCommand = new RelayCommand(p =>
-            {
-                if (p is TodoItemViewModel item) Remove(item);
-            });
         }
 
-        /// <summary>新增一条待办（忽略空白内容）。</summary>
         public void Add(string? text)
         {
             if (string.IsNullOrWhiteSpace(text)) return;
 
-            Items.Add(new TodoItemViewModel(text.Trim(), false));
+            var newItem = new TodoItemViewModel(text.Trim(), false, false);
+            var insertAt = Items.ToList().FindIndex(i => i.IsDone);
+            if (insertAt < 0) insertAt = Items.Count;
+            Items.Insert(insertAt, newItem);
             Persist();
         }
 
-        /// <summary>切换完成状态。</summary>
+        /// <summary>切换完成状态。完成后自动移到底部。</summary>
         public void Toggle(TodoItemViewModel item)
         {
             item.IsDone = !item.IsDone;
+            if (item.IsDone)
+            {
+                Items.Remove(item);
+                Items.Add(item);
+            }
+            else
+            {
+                Items.Remove(item);
+                var insertAt = Items.ToList().FindIndex(i => i.IsDone);
+                if (insertAt < 0) insertAt = Items.Count;
+                Items.Insert(insertAt, item);
+            }
             Persist();
         }
 
-        /// <summary>删除一条待办。</summary>
-        public void Remove(TodoItemViewModel item)
+        /// <summary>切换星标。</summary>
+        public void ToggleImportant(TodoItemViewModel item)
         {
-            if (Items.Remove(item)) Persist();
+            item.IsImportant = !item.IsImportant;
+            Persist();
         }
 
-        // ========================================================================
-        // 持久化
-        // ========================================================================
+        /// <summary>删除一条待办（记录同步物理删除）。</summary>
+        public void Remove(TodoItemViewModel item)
+        {
+            if (!Items.Remove(item)) return;
+            RecordService.Delete(item.RecordId);
+            Persist();
+        }
+
+        /// <summary>置顶：移到未完成区域最前面。</summary>
+        public void MoveToTop(TodoItemViewModel item)
+        {
+            if (item.IsDone) return; // 已完成的不置顶
+            Items.Remove(item);
+            Items.Insert(0, item);
+            Persist();
+        }
 
         private void LoadFromConfig()
         {
             foreach (var entry in _storage)
             {
                 if (string.IsNullOrWhiteSpace(entry.Text)) continue;
-                Items.Add(new TodoItemViewModel(entry.Text, entry.IsDone));
+                Items.Add(new TodoItemViewModel(entry.Text, entry.IsDone, entry.IsImportant, entry.RecordId));
             }
         }
 
-        /// <summary>把当前列表写回本面板的存储并保存（列表规模小，直接落盘即可）。</summary>
-        private void Persist()
+        internal void Persist()
         {
             _storage.Clear();
             foreach (var item in Items)
             {
+                // 同步到记录模块（批量写入，最后统一落盘一次）
+                item.RecordId = RecordService.Upsert(
+                    RecordKind.Todo, item.RecordId, _panel.Title,
+                    item.Text, item.IsDone, item.IsImportant,
+                    deferSave: true, groupId: _panel.Id) ?? string.Empty;
+
                 _storage.Add(new AppConfig.TodoEntry
                 {
+                    RecordId = item.RecordId,
                     Text = item.Text,
-                    IsDone = item.IsDone
+                    IsDone = item.IsDone,
+                    IsImportant = item.IsImportant
                 });
             }
+            RecordService.Flush();
             SettingsService.Save();
         }
     }

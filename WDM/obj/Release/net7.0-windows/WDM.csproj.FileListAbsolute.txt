@@ -30,3 +30,5 @@ D:\personalprogram\VSIDE\WinDesktopManager\WDM\WDM\obj\Release\net7.0-windows\re
 D:\personalprogram\VSIDE\WinDesktopManager\WDM\WDM\obj\Release\net7.0-windows\WDM.pdb
 D:\personalprogram\VSIDE\WinDesktopManager\WDM\WDM\obj\Release\net7.0-windows\WDM.genruntimeconfig.cache
 D:\personalprogram\VSIDE\WinDesktopManager\WDM\WDM\obj\Release\net7.0-windows\ref\WDM.dll
+D:\personalprogram\VSIDE\WinDesktopManager\WDM\WDM\obj\Release\net7.0-windows\Views\RecordsWindow.baml
+D:\personalprogram\VSIDE\WinDesktopManager\WDM\WDM\obj\Release\net7.0-windows\Views\RecordsWindow.g.cs

@@ -43,7 +43,7 @@ namespace WDM.Services
         /// <summary>新建一个待办面板（多个窗口共享同一份待办数据）。</summary>
         public static void OpenTodo()
         {
-            var layout = new AppConfig.TodoPanelEntry();
+            var layout = new AppConfig.TodoPanelEntry { Id = Guid.NewGuid().ToString("N") };
             SettingsService.Current.TodoPanels.Add(layout);
             ShowTodo(layout);
         }
@@ -58,7 +58,12 @@ namespace WDM.Services
             MigrateLegacyTodos(layouts);
 
             foreach (var layout in layouts.ToArray())
+            {
+                // 旧配置没有面板 Id，补一个稳定 Id（记录面板按它归类待办）
+                if (string.IsNullOrEmpty(layout.Id))
+                    layout.Id = Guid.NewGuid().ToString("N");
                 ShowTodo(layout);
+            }
         }
 
         /// <summary>
@@ -82,7 +87,7 @@ namespace WDM.Services
         private static void ShowNote(AppConfig.NoteEntry entry)
         {
             var window = new NoteWindow(entry);
-            window.Opacity = SettingsService.Current.NoteOpacity;
+            window.SetBackgroundOpacity(SettingsService.Current.NoteOpacity);
             Notes.Add(window);
             window.Closed += (_, _) => Notes.Remove(window);
 
@@ -101,7 +106,7 @@ namespace WDM.Services
         {
             var vm = new TodoViewModel(layout);
             var window = new TodoWindow(vm, layout);
-            window.Opacity = SettingsService.Current.TodoOpacity;
+            window.SetBackgroundOpacity(SettingsService.Current.TodoOpacity);
             Todos.Add(window);
             window.Closed += (_, _) =>
             {
@@ -145,9 +150,18 @@ namespace WDM.Services
         private static void ApplyOpacity()
         {
             foreach (var window in Notes)
-                window.Opacity = SettingsService.Current.NoteOpacity;
+                window.SetBackgroundOpacity(SettingsService.Current.NoteOpacity);
             foreach (var window in Todos)
-                window.Opacity = SettingsService.Current.TodoOpacity;
+                window.SetBackgroundOpacity(SettingsService.Current.TodoOpacity);
+        }
+
+        /// <summary>主题切换（日间 / 夜间）后，用各自上次的 opacity 重新拉取最新基底 Brush。</summary>
+        public static void ReapplyBackgroundOpacities()
+        {
+            foreach (var window in Notes)
+                window.ReapplyBackgroundOpacity();
+            foreach (var window in Todos)
+                window.ReapplyBackgroundOpacity();
         }
 
         /// <summary>关闭所有面板（应用退出时调用，会触发内容保存）。</summary>

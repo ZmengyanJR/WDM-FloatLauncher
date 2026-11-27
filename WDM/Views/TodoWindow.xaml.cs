@@ -1,97 +1,65 @@
 using System;
 using System.ComponentModel;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
+using System.Windows.Media;
 using WDM.Models;
 using WDM.Services;
 using WDM.ViewModels;
 
 namespace WDM.Views
 {
-    /// <summary>
-    /// 桌面待办面板。
-    /// 交互：左键点击条目切换完成状态，右键删除；底部输入框回车添加。
-    /// 所有数据逻辑在 TodoViewModel 中，这里只处理视图事件。
-    /// </summary>
+    /// <summary>桌面待办面板。</summary>
     public partial class TodoWindow : Window
     {
         private readonly AppConfig.TodoPanelEntry? _layout;
-
         private TodoViewModel Vm => (TodoViewModel)DataContext;
-
-        /// <summary>是否是用户点叉号删除（删除的面板下次不再恢复）。</summary>
         public bool Deleted { get; private set; }
 
         public TodoWindow(TodoViewModel viewModel, AppConfig.TodoPanelEntry? layout = null)
         {
             InitializeComponent();
             DataContext = viewModel;
-
             _layout = layout;
             Closing += OnClosing;
         }
 
-        /// <summary>关闭时保存面板位置与大小，下次启动原样恢复。</summary>
         private void OnClosing(object? sender, CancelEventArgs e)
         {
             if (_layout == null || Deleted) return;
-
-            _layout.X = Left;
-            _layout.Y = Top;
-            _layout.Width = ActualWidth;
-            _layout.Height = ActualHeight;
+            _layout.X = Left; _layout.Y = Top;
+            _layout.Width = ActualWidth; _layout.Height = ActualHeight;
             SettingsService.Save();
         }
 
-        // ============================================================================
-        // 窗口操作
-        // ============================================================================
-
         private void Header_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.OriginalSource is System.Windows.Controls.TextBox) return; // 标题编辑时不拖动
+            if (e.OriginalSource is TextBox) return;
             try { DragMove(); } catch { }
         }
 
         private void TopmostMenuItem_Click(object sender, RoutedEventArgs e) => Topmost = true;
-
         private void BottomMenuItem_Click(object sender, RoutedEventArgs e) => DesktopPanelService.SetBottom(this);
+        private void CloseButton_Click(object sender, RoutedEventArgs e) { Deleted = true; Close(); }
 
-        private void CloseButton_Click(object sender, RoutedEventArgs e)
-        {
-            Deleted = true;
-            Close();
-        }
-
-        /// <summary>
-        /// 右下角手柄拖动：调整面板大小。
-        /// 待办面板默认高度随内容自适应（SizeToContent），一旦手动拖拽就切换为固定高度，
-        /// 后续新增条目改为列表内滚动，避免把窗口越撑越高。
-        /// </summary>
         private void ResizeThumb_DragDelta(object sender, DragDeltaEventArgs e)
         {
             if (SizeToContent != SizeToContent.Manual)
             {
-                var currentHeight = ActualHeight;
+                var h = ActualHeight;
                 SizeToContent = SizeToContent.Manual;
-                Height = currentHeight;
-                MaxHeight = SystemParameters.WorkArea.Height - 40;
+                Height = h;
+                MaxHeight = SystemParameters.WorkArea.Height;
             }
-
             Width = Math.Max(MinWidth, Width + e.HorizontalChange);
             Height = Math.Max(MinHeight, Height + e.VerticalChange);
         }
 
-        // ============================================================================
-        // 添加待办
-        // ============================================================================
-
-        /// <summary>输入框回车：提交一条待办。</summary>
         private void InputBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key != Key.Enter) return;
-
             Vm.Add(InputBox.Text);
             InputBox.Clear();
             e.Handled = true;
@@ -101,24 +69,104 @@ namespace WDM.Views
         // 条目交互
         // ============================================================================
 
-        /// <summary>左键点击：切换完成状态。</summary>
+        /// <summary>左键：切换完成 / 未完成。</summary>
         private void TodoItem_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             if (sender is FrameworkElement fe && fe.DataContext is TodoItemViewModel item)
-            {
                 Vm.Toggle(item);
-                e.Handled = true;
+            e.Handled = true;
+        }
+
+        /// <summary>圆点也可以左键切换完成。</summary>
+        private void Dot_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is FrameworkElement fe && fe.DataContext is TodoItemViewModel item)
+                Vm.Toggle(item);
+            e.Handled = true;
+        }
+
+        /// <summary>星标：切换重要。</summary>
+        private void Star_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is FrameworkElement fe && fe.DataContext is TodoItemViewModel item)
+                Vm.ToggleImportant(item);
+            e.Handled = true;
+        }
+
+        // ============================================================================
+        // 右键菜单：删除 / 修改 / 置顶
+        // ============================================================================
+
+        private void DeleteItem_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is MenuItem mi && mi.DataContext is TodoItemViewModel item)
+                Vm.Remove(item);
+        }
+
+        private void EditItem_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is MenuItem mi && mi.DataContext is TodoItemViewModel item)
+            {
+                // 删除当前条 + 内容塞到底部输入框，用户改完回车即为修改
+                Vm.Remove(item);
+                InputBox.Text = item.Text;
+                InputBox.Focus();
+                InputBox.SelectAll();
             }
         }
 
-        /// <summary>右键点击：删除该条待办。</summary>
-        private void TodoItem_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
+        private void MoveToTop_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is FrameworkElement fe && fe.DataContext is TodoItemViewModel item)
+            if (sender is MenuItem mi && mi.DataContext is TodoItemViewModel item)
+                Vm.MoveToTop(item);
+        }
+
+        // ============================================================================
+        // 主题：背景透明度 + 夜间模式
+        // ============================================================================
+
+        private double _lastBgOpacity = 1.0;
+        private Thickness _savedBorderThickness;
+        private System.Windows.Media.Effects.Effect? _savedBorderEffect;
+        private bool _borderDefaultsCached;
+
+        public void SetBackgroundOpacity(double opacity)
+        {
+            _lastBgOpacity = Math.Clamp(opacity, 0, 1);
+
+            if (Application.Current?.Resources["GlassBrush"] is not LinearGradientBrush baseBrush) return;
+
+            var newBrush = new LinearGradientBrush
             {
-                Vm.Remove(item);
-                e.Handled = true;
+                StartPoint = baseBrush.StartPoint,
+                EndPoint = baseBrush.EndPoint
+            };
+            foreach (var gs in baseBrush.GradientStops)
+            {
+                var c = gs.Color;
+                c.A = (byte)Math.Round(_lastBgOpacity * 255);
+                newBrush.GradientStops.Add(new GradientStop(c, gs.Offset));
+            }
+            PanelBorder.Background = newBrush;
+
+            if (_lastBgOpacity <= 0.001)
+            {
+                if (!_borderDefaultsCached)
+                {
+                    _savedBorderThickness = PanelBorder.BorderThickness;
+                    _savedBorderEffect = PanelBorder.Effect;
+                    _borderDefaultsCached = true;
+                }
+                PanelBorder.BorderThickness = new Thickness(0);
+                PanelBorder.Effect = null;
+            }
+            else if (_borderDefaultsCached)
+            {
+                PanelBorder.BorderThickness = _savedBorderThickness;
+                PanelBorder.Effect = _savedBorderEffect;
             }
         }
+
+        public void ReapplyBackgroundOpacity() => SetBackgroundOpacity(_lastBgOpacity);
     }
 }

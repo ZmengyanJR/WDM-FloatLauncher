@@ -267,3 +267,5 @@ D:\personalprogram\VSIDE\WinDesktopManager\WDM\WDM\obj\Release\net7.0-windows\wi
 D:\personalprogram\VSIDE\WinDesktopManager\WDM\WDM\obj\Release\net7.0-windows\win-x86\refint\WDM.dll
 D:\personalprogram\VSIDE\WinDesktopManager\WDM\WDM\obj\Release\net7.0-windows\win-x86\WDM.genruntimeconfig.cache
 D:\personalprogram\VSIDE\WinDesktopManager\WDM\WDM\obj\Release\net7.0-windows\win-x86\ref\WDM.dll
+D:\personalprogram\VSIDE\WinDesktopManager\WDM\WDM\obj\Release\net7.0-windows\win-x86\Views\RecordsWindow.baml
+D:\personalprogram\VSIDE\WinDesktopManager\WDM\WDM\obj\Release\net7.0-windows\win-x86\Views\RecordsWindow.g.cs

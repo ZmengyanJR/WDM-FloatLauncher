@@ -15,10 +15,10 @@
         TextOptions.TextFormattingMode="Display">
 
     <Border CornerRadius="18"
-            Background="{StaticResource PanelDarkBrush}"
-            BorderBrush="{StaticResource PanelStrokeBrush}"
+            Background="{DynamicResource PanelDarkBrush}"
+            BorderBrush="{DynamicResource PanelStrokeBrush}"
             BorderThickness="1"
-            Effect="{StaticResource PanelShadow}">
+            Effect="{DynamicResource PanelShadow}">
         <Grid Margin="22,14,22,16">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -43,14 +43,14 @@
                             Background="Transparent"
                             MouseLeftButtonDown="Header_MouseLeftButtonDown">
                     <Ellipse Width="8" Height="8"
-                             Fill="{StaticResource AccentBrush}"
-                             Effect="{StaticResource AccentGlow}"
+                             Fill="{DynamicResource AccentBrush}"
+                             Effect="{DynamicResource AccentGlow}"
                              VerticalAlignment="Center"
                              Margin="0,0,8,0"/>
                     <TextBlock Text="设置中心"
                                FontSize="15"
                                FontWeight="SemiBold"
-                               Foreground="{StaticResource TextPrimaryBrush}"
+                               Foreground="{DynamicResource TextPrimaryBrush}"
                                VerticalAlignment="Center"/>
                 </StackPanel>
                 <Button Content="✕"
@@ -85,7 +85,7 @@
                 <TextBlock Text="{Binding GaugeText}"
                            FontSize="24"
                            FontWeight="Bold"
-                           Foreground="{StaticResource AccentBrush}"
+                           Foreground="{DynamicResource AccentBrush}"
                            HorizontalAlignment="Center"/>
                 <TextBlock Text="{Binding GaugeCaption}"
                            Style="{StaticResource DarkCaptionTextStyle}"
@@ -93,7 +93,7 @@
                            Margin="0,2,0,0"/>
             </StackPanel>
 
-            <Border Grid.Row="3" Height="1" Background="{StaticResource DividerBrush}" Margin="0,12"/>
+            <Border Grid.Row="3" Height="1" Background="{DynamicResource DividerBrush}" Margin="0,12"/>
 
             <!-- ===== 桌面组件 ===== -->
             <TextBlock Grid.Row="4"
@@ -112,10 +112,8 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <!-- 统一图标：圆角底 + Segoe MDL2 字形 -->
-                    <Border Style="{StaticResource SettingsIconBoxStyle}"
-                            Background="#26FFC46B" BorderBrush="#4DFFC46B">
-                        <TextBlock Text="&#xE70F;" Style="{StaticResource SettingsIconGlyphStyle}"
-                                   Foreground="#FFC46B"/>
+                    <Border Style="{StaticResource SettingsIconBoxStyle}">
+                        <TextBlock Text="&#xE70F;" Style="{StaticResource SettingsIconGlyphStyle}"/>
                     </Border>
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                         <TextBlock Text="便签" Style="{StaticResource DarkTitleTextStyle}"/>
@@ -141,10 +139,8 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <Border Style="{StaticResource SettingsIconBoxStyle}"
-                            Background="#265FD99B" BorderBrush="#4D5FD99B">
-                        <TextBlock Text="&#xE73E;" Style="{StaticResource SettingsIconGlyphStyle}"
-                                   Foreground="#5FD99B"/>
+                    <Border Style="{StaticResource SettingsIconBoxStyle}">
+                        <TextBlock Text="&#xE73E;" Style="{StaticResource SettingsIconGlyphStyle}"/>
                     </Border>
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                         <TextBlock Text="待办事项" Style="{StaticResource DarkTitleTextStyle}"/>
@@ -160,7 +156,7 @@
                 </Grid>
             </Border>
 
-            <!-- 夜间模式 -->
+            <!-- 开机自启动 -->
             <Border Grid.Row="7" Style="{StaticResource SettingsRowStyle}">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -168,37 +164,8 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <Border Style="{StaticResource SettingsIconBoxStyle}"
-                            Background="#268FA8FF" BorderBrush="#4D8FA8FF">
-                        <TextBlock Text="&#xE708;" Style="{StaticResource SettingsIconGlyphStyle}"
-                                   Foreground="#8FA8FF"/>
-                    </Border>
-                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                        <TextBlock Text="夜间模式" Style="{StaticResource DarkTitleTextStyle}"/>
-                        <TextBlock Text="便签与待办切换为黑色毛玻璃"
-                                   Style="{StaticResource DarkCaptionTextStyle}"
-                                   Margin="0,2,0,0"/>
-                    </StackPanel>
-                    <CheckBox Grid.Column="2"
-                              Style="{StaticResource ToggleSwitchStyle}"
-                              IsChecked="{Binding NightMode}"
-                              VerticalAlignment="Center"
-                              ToolTip="夜间模式"/>
-                </Grid>
-            </Border>
-
-            <!-- 开机自启动 -->
-            <Border Grid.Row="8" Style="{StaticResource SettingsRowStyle}">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <Border Style="{StaticResource SettingsIconBoxStyle}"
-                            Background="#262CC7F7" BorderBrush="#4D2CC7F7">
-                        <TextBlock Text="&#xE7E8;" Style="{StaticResource SettingsIconGlyphStyle}"
-                                   Foreground="#2CC7F7"/>
+                    <Border Style="{StaticResource SettingsIconBoxStyle}">
+                        <TextBlock Text="&#xE7E8;" Style="{StaticResource SettingsIconGlyphStyle}"/>
                     </Border>
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                         <TextBlock Text="开机自启动" Style="{StaticResource DarkTitleTextStyle}"/>
@@ -214,6 +181,31 @@
                 </Grid>
             </Border>
 
+            <!-- 暗夜模式：便签 / 待办切换为黑色透明毛玻璃 -->
+            <Border Grid.Row="8" Style="{StaticResource SettingsRowStyle}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Style="{StaticResource SettingsIconBoxStyle}">
+                        <TextBlock Text="&#xE708;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                    </Border>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="暗夜模式" Style="{StaticResource DarkTitleTextStyle}"/>
+                        <TextBlock Text="便签与待办切换为黑色毛玻璃"
+                                   Style="{StaticResource DarkCaptionTextStyle}"
+                                   Margin="0,2,0,0"/>
+                    </StackPanel>
+                    <CheckBox Grid.Column="2"
+                              Style="{StaticResource ToggleSwitchStyle}"
+                              IsChecked="{Binding NightMode}"
+                              VerticalAlignment="Center"
+                              ToolTip="暗夜模式"/>
+                </Grid>
+            </Border>
+
             <!-- 霓虹模式：点击本行切换表盘为全局色调，再次点击返回 Dock -->
             <Border Grid.Row="9" Style="{StaticResource SettingsRowStyle}" Cursor="Hand"
                     Tag="Icon" MouseLeftButtonDown="PanelRow_MouseLeftButtonDown"
@@ -224,10 +216,8 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <Border Style="{StaticResource SettingsIconBoxStyle}"
-                            Background="#26FF9E7A" BorderBrush="#4DFF9E7A">
-                        <TextBlock Text="&#xE790;" Style="{StaticResource SettingsIconGlyphStyle}"
-                                   Foreground="#FF9E7A"/>
+                    <Border Style="{StaticResource SettingsIconBoxStyle}">
+                        <TextBlock Text="&#xE790;" Style="{StaticResource SettingsIconGlyphStyle}"/>
                     </Border>
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                         <TextBlock Text="霓虹模式" Style="{StaticResource DarkTitleTextStyle}"/>
@@ -349,6 +339,32 @@
                         Value="{Binding IconTone, Mode=TwoWay}"
                         Margin="0,6,0,2"/>
             </StackPanel>
+
+            <!-- ===== 记录面板：打开独立的记录查看窗口 ===== -->
+            <Border Grid.Row="12" Style="{StaticResource SettingsRowStyle}" Cursor="Hand"
+                    ToolTip="按时间查看便签与待办的历史记录"
+                    MouseLeftButtonDown="RecordsRow_MouseLeftButtonDown">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Style="{StaticResource SettingsIconBoxStyle}">
+                        <TextBlock Text="&#xE81C;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                    </Border>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="记录面板" Style="{StaticResource DarkTitleTextStyle}"/>
+                        <TextBlock Text="按时间查看便签与待办的记录"
+                                   Style="{StaticResource DarkCaptionTextStyle}"
+                                   Margin="0,2,0,0"/>
+                    </StackPanel>
+                    <TextBlock Grid.Column="2" Text="›"
+                               FontSize="16"
+                               VerticalAlignment="Center"
+                               Foreground="{DynamicResource TextMutedBrush}"/>
+                </Grid>
+            </Border>
         </Grid>
     </Border>
 </Window>

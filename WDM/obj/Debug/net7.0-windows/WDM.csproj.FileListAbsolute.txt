@@ -30,3 +30,5 @@ D:\personalprogram\VSIDE\WinDesktopManager\WDM\WDM\obj\Debug\net7.0-windows\View
 D:\personalprogram\VSIDE\WinDesktopManager\WDM\WDM\obj\Debug\net7.0-windows\Views\TodoWindow.g.cs
 D:\personalprogram\VSIDE\WinDesktopManager\WDM\WDM\obj\Debug\net7.0-windows\Resources\Theme.baml
 D:\personalprogram\VSIDE\WinDesktopManager\WDM\WDM\obj\Debug\net7.0-windows\App.baml
+D:\personalprogram\VSIDE\WinDesktopManager\WDM\WDM\obj\Debug\net7.0-windows\Views\RecordsWindow.baml
+D:\personalprogram\VSIDE\WinDesktopManager\WDM\WDM\obj\Debug\net7.0-windows\Views\RecordsWindow.g.cs

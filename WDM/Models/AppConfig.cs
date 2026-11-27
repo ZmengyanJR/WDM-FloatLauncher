@@ -42,9 +42,16 @@ namespace WDM.Models
         public List<NoteEntry> Notes { get; set; } = new();
 
         /// <summary>
-        /// 是否启用夜间模式（便签 / 待办切换为黑色毛玻璃）。
+        /// 旧版夜间模式开关，仅保留用于兼容历史配置，已不再驱动界面。
+        /// 新的外观由 Skin 决定。
         /// </summary>
         public bool NightMode { get; set; } = false;
+
+        /// <summary>
+        /// 当前皮肤 Id：dark=暗夜冰蓝，paper=裸色小麦，mint=浅清桃粉，latte=美式拿铁。
+        /// 皮肤定义在 ThemeService 中，新增皮肤不需要改界面。
+        /// </summary>
+        public string Skin { get; set; } = "dark";
 
         /// <summary>便签面板透明度（默认 1，保持原有观感）。</summary>
         public double NoteOpacity { get; set; } = 1.0;
@@ -78,6 +85,9 @@ namespace WDM.Models
         /// </summary>
         public class NoteEntry
         {
+            /// <summary>关联的记录 Id（用于同步 records.json）</summary>
+            public string RecordId { get; set; } = string.Empty;
+
             /// <summary>自定义标题</summary>
             public string Title { get; set; } = "便签";
 
@@ -102,6 +112,9 @@ namespace WDM.Models
         /// </summary>
         public class TodoPanelEntry
         {
+            /// <summary>面板唯一 Id（用于记录面板按面板归类，旧配置加载时补全）。</summary>
+            public string Id { get; set; } = string.Empty;
+
             /// <summary>自定义标题</summary>
             public string Title { get; set; } = "待办事项";
 
@@ -125,15 +138,21 @@ namespace WDM.Models
         public List<TodoEntry> Todos { get; set; } = new();
 
         /// <summary>
-        /// 表示一条待办事项（仅文本和完成状态）。
+        /// 表示一条待办事项（文本、完成状态、星标）。
         /// </summary>
         public class TodoEntry
         {
+            /// <summary>关联的记录 Id（用于同步 records.json）</summary>
+            public string RecordId { get; set; } = string.Empty;
+
             /// <summary>待办内容</summary>
             public string Text { get; set; } = string.Empty;
 
             /// <summary>是否已完成</summary>
             public bool IsDone { get; set; }
+
+            /// <summary>是否标为重要（星标）</summary>
+            public bool IsImportant { get; set; }
         }
 
         /// <summary>

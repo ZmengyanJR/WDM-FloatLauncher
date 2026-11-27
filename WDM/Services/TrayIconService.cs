@@ -21,6 +21,7 @@ namespace WDM.Services
     public class TrayIconService : IDisposable
     {
         private readonly NotifyIcon _notifyIcon;
+        private readonly ContextMenuStrip _menu;
 
         /// <summary>
         /// 托盘图标双击时触发，外部（MainWindow）订阅以显示主窗口。
@@ -31,6 +32,11 @@ namespace WDM.Services
         /// 用户从托盘菜单选择"设置中心"时触发。
         /// </summary>
         public event Action? SettingsRequested;
+
+        /// <summary>
+        /// 用户从托盘菜单选择"记录面板"时触发。
+        /// </summary>
+        public event Action? RecordsRequested;
 
         /// <summary>
         /// 用户从托盘菜单选择"退出"时触发。
@@ -44,12 +50,15 @@ namespace WDM.Services
         /// <param name="icon">托盘使用的图标；传 null 则使用应用默认图标</param>
         public TrayIconService(Icon? icon = null)
         {
+            _menu = BuildContextMenu();
+            RefreshSkin();
+
             _notifyIcon = new NotifyIcon
             {
                 Icon = icon ?? GetDefaultIcon(),
                 Text = "WDM - 桌面悬浮管理器",  // 鼠标悬停提示
                 Visible = true,
-                ContextMenuStrip = BuildContextMenu()
+                ContextMenuStrip = _menu
             };
 
             _notifyIcon.DoubleClick += OnDoubleClick;
@@ -63,21 +72,114 @@ namespace WDM.Services
         /// </summary>
         private ContextMenuStrip BuildContextMenu()
         {
-            var menu = new ContextMenuStrip();
+            // 托盘菜单是 WinForms 控件，不受 WPF Theme.xaml 影响，
+            // 这里用自定义 Renderer 套用同一套深色调音台配色。
+            var menu = new ContextMenuStrip
+            {
+                ShowImageMargin = false,
+                Font = new Font("Microsoft YaHei UI", 9F),
+                Padding = new Padding(4)
+            };
 
             // 设置中心：合并了原"显示主窗口"和"设置"，点击后打开设置窗口
-            var settingsItem = new ToolStripMenuItem("设置中心");
+            var settingsItem = new ToolStripMenuItem("设置中心") { Padding = new Padding(10, 5, 10, 5) };
             settingsItem.Click += (s, e) => SettingsRequested?.Invoke();
             menu.Items.Add(settingsItem);
+
+            // 记录面板：按时间查看便签 / 待办记录
+            var recordsItem = new ToolStripMenuItem("记录面板") { Padding = new Padding(10, 5, 10, 5) };
+            recordsItem.Click += (s, e) => RecordsRequested?.Invoke();
+            menu.Items.Add(recordsItem);
 
             menu.Items.Add(new ToolStripSeparator());
 
             // 退出
-            var exitItem = new ToolStripMenuItem("退出 WDM");
+            var exitItem = new ToolStripMenuItem("退出 WDM") { Padding = new Padding(10, 5, 10, 5) };
             exitItem.Click += (s, e) => ExitRequested?.Invoke();
             menu.Items.Add(exitItem);
 
             return menu;
+        }
+
+        /// <summary>按当前皮肤刷新托盘菜单配色（WPF 的 Theme.xaml 管不到 WinForms 菜单）。</summary>
+        public void RefreshSkin()
+        {
+            var bg = ToDrawing(ThemeService.MenuBackground);
+            var text = ToDrawing(ThemeService.MenuText);
+            var hover = ToDrawing(ThemeService.MenuHover);
+            var hoverText = ToDrawing(ThemeService.MenuHoverText);
+            var border = ToDrawing(ThemeService.MenuBorder);
+
+            _menu.BackColor = bg;
+            _menu.ForeColor = text;
+            _menu.Renderer = new SkinMenuRenderer(bg, text, hover, border, hoverText);
+        }
+
+        private static Color ToDrawing(System.Windows.Media.Color c) =>
+            Color.FromArgb(c.A, c.R, c.G, c.B);
+
+        /// <summary>托盘菜单配色表（颜色来自当前皮肤）。</summary>
+        private sealed class SkinMenuColorTable : ProfessionalColorTable
+        {
+            private readonly Color _bg, _hover, _border;
+
+            public SkinMenuColorTable(Color bg, Color hover, Color border)
+            {
+                _bg = bg;
+                _hover = hover;
+                _border = border;
+            }
+
+            public override Color ToolStripDropDownBackground => _bg;
+            public override Color ImageMarginGradientBegin => _bg;
+            public override Color ImageMarginGradientMiddle => _bg;
+            public override Color ImageMarginGradientEnd => _bg;
+            public override Color MenuBorder => _border;
+            public override Color MenuItemBorder => _hover;
+            public override Color MenuItemSelected => _hover;
+            public override Color MenuItemSelectedGradientBegin => _hover;
+            public override Color MenuItemSelectedGradientEnd => _hover;
+            public override Color SeparatorDark => _border;
+            public override Color SeparatorLight => _bg;
+        }
+
+        /// <summary>菜单渲染器：背景 / 悬停 / 文字 / 边框 / 分隔线统一跟随皮肤。</summary>
+        private sealed class SkinMenuRenderer : ToolStripProfessionalRenderer
+        {
+            private readonly Color _bg, _text, _border, _hoverText;
+
+            public SkinMenuRenderer(Color bg, Color text, Color hover, Color border, Color hoverText)
+                : base(new SkinMenuColorTable(bg, hover, border))
+            {
+                _bg = bg;
+                _text = text;
+                _border = border;
+                _hoverText = hoverText;
+                RoundedEdges = false;
+            }
+
+            protected override void OnRenderItemText(ToolStripItemTextRenderEventArgs e)
+            {
+                if (e.Item?.Enabled == false)
+                    e.TextColor = Color.FromArgb(0x88, 0x99, 0xA3);
+                else if (e.Item?.Selected == true)
+                    e.TextColor = _hoverText;   // 亮蓝选中态上用深色文字
+                else
+                    e.TextColor = _text;
+                base.OnRenderItemText(e);
+            }
+
+            protected override void OnRenderToolStripBackground(ToolStripRenderEventArgs e)
+            {
+                using var brush = new SolidBrush(_bg);
+                e.Graphics.FillRectangle(brush, e.AffectedBounds);
+            }
+
+            protected override void OnRenderToolStripBorder(ToolStripRenderEventArgs e)
+            {
+                using var pen = new Pen(_border);
+                e.Graphics.DrawRectangle(pen, 0, 0, e.ToolStrip.Width - 1, e.ToolStrip.Height - 1);
+            }
         }
 
         /// <summary>

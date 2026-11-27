@@ -19,6 +19,7 @@ namespace WDM
         private static TrayIconService? _tray;
         private static MainWindow? _mainWindow;
         private static SettingsWindow? _settingsWindow;
+        private static RecordsWindow? _recordsWindow;
 
         /// <summary>
         /// 全局配置变更事件。
@@ -56,9 +57,10 @@ namespace WDM
                 return;
             }
 
-            // --- 应用已保存的日间 / 夜间主题 ---
+            // --- 应用已保存的皮肤、暗夜模式与全局色调 ---
             // 必须在创建任何面板之前执行，修改的是 Theme.xaml 中的共享画刷
-            ThemeService.Apply(SettingsService.Current.NightMode);
+            ThemeService.ApplySkin(SettingsService.Current.Skin);
+            ThemeService.ApplyGlass(SettingsService.Current.NightMode);
             ThemeService.ApplyAccent(SettingsService.Current.IconTone);
 
             // --- 创建并显示主窗口 ---
@@ -84,6 +86,17 @@ namespace WDM
             catch (Exception ex)
             {
                 AppenderService.Write("Failed to restore desktop panels");
+                AppenderService.Write(ex);
+            }
+
+            // --- 把现有便签 / 待办同步进记录模块（幂等，供记录面板查询）---
+            try
+            {
+                Services.RecordService.MigrateFromConfig(SettingsService.Current);
+            }
+            catch (Exception ex)
+            {
+                AppenderService.Write("Failed to migrate records");
                 AppenderService.Write(ex);
             }
 
@@ -151,6 +164,13 @@ namespace WDM
             // 托盘"设置" → 打开设置窗口
             _tray.SettingsRequested += OpenSettingsWindow;
 
+            // 托盘"记录面板" → 打开记录面板
+            _tray.RecordsRequested += OpenRecordsWindow;
+
+            // 托盘是 WinForms 控件，皮肤切换后需要单独刷新它的菜单配色
+            ThemeService.SkinChanged += _tray.RefreshSkin;
+            _tray.RefreshSkin();
+
             // 托盘"退出" → 真正关闭程序
             _tray.ExitRequested += () =>
             {
@@ -176,6 +196,23 @@ namespace WDM
             _settingsWindow = new SettingsWindow();
             _settingsWindow.Closed += (_, _) => _settingsWindow = null;
             _settingsWindow.Show();
+        }
+
+        /// <summary>
+        /// 打开记录面板（单实例：已打开则激活）。
+        /// 托盘菜单与设置中心都走这里，避免重复打开两个窗口。
+        /// </summary>
+        public static void OpenRecordsWindow()
+        {
+            if (_recordsWindow is { IsLoaded: true })
+            {
+                _recordsWindow.Activate();
+                return;
+            }
+
+            _recordsWindow = new RecordsWindow();
+            _recordsWindow.Closed += (_, _) => _recordsWindow = null;
+            _recordsWindow.Show();
         }
     }
 }

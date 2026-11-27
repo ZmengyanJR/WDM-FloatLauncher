@@ -5,7 +5,8 @@
         Width="300"
         MinWidth="240"
         MinHeight="200"
-        MaxHeight="480"
+        MaxWidth="{Binding Source={x:Static SystemParameters.WorkArea}, Path=Width}"
+        MaxHeight="{Binding Source={x:Static SystemParameters.WorkArea}, Path=Height}"
         SizeToContent="Height"
         WindowStyle="None"
         AllowsTransparency="True"
@@ -15,8 +16,17 @@
         UseLayoutRounding="True"
         TextOptions.TextFormattingMode="Display">
 
+    <Window.Resources>
+        <!-- 待办内部光标保持固定青色；滚动条滑块与面板边框 / 发光走 PanelAccent*，由全局色调控制。 -->
+        <SolidColorBrush x:Key="AccentBrush" Color="#FF2CC7F7"/>
+        <SolidColorBrush x:Key="AccentHoverBrush" Color="#FF6BDDFF"/>
+        <SolidColorBrush x:Key="AccentSoftBrush" Color="#552CC7F7"/>
+        <Style TargetType="ScrollBar" BasedOn="{StaticResource PanelAccentScrollBarStyle}"/>
+    </Window.Resources>
+
     <Grid>
-        <Border Style="{StaticResource GlassPanelStyle}" Padding="16,12,16,14">
+        <Border x:Name="PanelBorder"
+                Style="{StaticResource GlassPanelStyle}" Padding="16,12,16,14">
             <DockPanel>
 
                 <!-- ===== 标题栏（左键拖动，右键置顶 / 置底） ===== -->
@@ -31,14 +41,14 @@
                     <TextBox Text="{Binding Title, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource PanelTitleTextBoxStyle}"
                              ContextMenu="{Binding ContextMenu, RelativeSource={RelativeSource AncestorType=Grid}}"
-                             VerticalAlignment="Center" Margin="0,0,180,0"/>
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Cursor="Hand">
-                        <Button Content="✕"
-                                Style="{StaticResource GlassGhostIconButtonStyle}"
-                                Margin="6,0,0,0"
-                                Click="CloseButton_Click"
-                                ToolTip="删除"/>
-                    </StackPanel>
+                             VerticalAlignment="Center"
+                             HorizontalAlignment="Left"
+                             MaxWidth="220"/>
+                    <Button Content="✕"
+                            HorizontalAlignment="Right"
+                            Style="{StaticResource GlassGhostIconButtonStyle}"
+                            Click="CloseButton_Click"
+                            ToolTip="删除"/>
                 </Grid>
 
                 <!-- ===== 底部输入行 ===== -->
@@ -71,8 +81,10 @@
 
                 <!-- ===== 待办列表 ===== -->
                 <Grid>
-                    <ScrollViewer VerticalScrollBarVisibility="Auto">
-                        <ItemsControl ItemsSource="{Binding Items}">
+                    <ScrollViewer x:Name="ListScroll"
+                                  VerticalScrollBarVisibility="Auto"
+                                  Style="{StaticResource AccentScrollViewerStyle}">
+                        <ItemsControl x:Name="ItemList" ItemsSource="{Binding Items}">
                             <ItemsControl.ItemContainerStyle>
                                 <Style TargetType="ContentPresenter">
                                     <Setter Property="HorizontalAlignment" Value="Stretch"/>
@@ -81,10 +93,11 @@
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Border CornerRadius="8"
-                                            Padding="8,6"
-                                            ToolTip="左键完成 / 右键删除"
-                                            MouseLeftButtonUp="TodoItem_MouseLeftButtonUp"
-                                            MouseRightButtonUp="TodoItem_MouseRightButtonUp">
+                                            Padding="6,4"
+                                            Margin="2,1"
+                                            Cursor="Hand"
+                                            ToolTip="左键完成 / 右键编辑"
+                                            MouseLeftButtonUp="TodoItem_MouseLeftButtonUp">
                                         <Border.Style>
                                             <Style TargetType="Border">
                                                 <Setter Property="Background" Value="Transparent"/>
@@ -95,16 +108,25 @@
                                                 </Style.Triggers>
                                             </Style>
                                         </Border.Style>
+                                        <Border.ContextMenu>
+                                            <ContextMenu>
+                                                <MenuItem Header="修改" Click="EditItem_Click"/>
+                                                <MenuItem Header="删除" Click="DeleteItem_Click"/>
+                                                <MenuItem Header="置顶" Click="MoveToTop_Click"/>
+                                            </ContextMenu>
+                                        </Border.ContextMenu>
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="Auto"/>
                                                 <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
 
-                                            <!-- 完成状态圆点 -->
+                                            <!-- 完成状态圆点（点击切换完成） -->
                                             <Ellipse Width="14" Height="14"
                                                      VerticalAlignment="Center"
-                                                     Margin="0,0,8,0">
+                                                     Margin="0,0,8,0"
+                                                     MouseLeftButtonUp="Dot_MouseLeftButtonUp">
                                                 <Ellipse.Style>
                                                     <Style TargetType="Ellipse">
                                                         <Setter Property="Stroke" Value="{DynamicResource PanelAccentBrush}"/>
@@ -133,6 +155,32 @@
                                                                 <Setter Property="TextDecorations" Value="Strikethrough"/>
                                                                 <Setter Property="Foreground" Value="{DynamicResource GlassTextMutedBrush}"/>
                                                             </DataTrigger>
+                                                            <DataTrigger Binding="{Binding IsImportant}" Value="True">
+                                                                <Setter Property="FontWeight" Value="SemiBold"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+
+                                            <!-- 星标按钮 -->
+                                            <TextBlock Grid.Column="2"
+                                                       Text="★"
+                                                       FontSize="14"
+                                                       VerticalAlignment="Center"
+                                                       Cursor="Hand"
+                                                       Margin="4,0,0,0"
+                                                       MouseLeftButtonUp="Star_MouseLeftButtonUp">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Foreground" Value="Transparent"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsImportant}" Value="True">
+                                                                <Setter Property="Foreground" Value="{DynamicResource PanelAccentBrush}"/>
+                                                            </DataTrigger>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter Property="Foreground" Value="{DynamicResource PanelAccentBrush}"/>
+                                                            </Trigger>
                                                         </Style.Triggers>
                                                     </Style>
                                                 </TextBlock.Style>

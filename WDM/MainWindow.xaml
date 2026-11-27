@@ -126,7 +126,7 @@
                                 <Style TargetType="TextBlock">
                                     <Setter Property="Visibility" Value="Collapsed"/>
                                     <Setter Property="Foreground" Value="#FFFFFF"/>
-                                    <Setter Property="Effect" Value="{StaticResource PanelAccentGlowSoft}"/>
+                                    <Setter Property="Effect" Value="{DynamicResource PanelAccentGlowSoft}"/>
                                     <Style.Triggers>
                                         <!-- 图标模式行展开后：显示应用名 -->
                                         <DataTrigger Binding="{Binding DataContext.ShowAppLabels,

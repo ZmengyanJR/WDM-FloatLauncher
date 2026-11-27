@@ -6,6 +6,8 @@
         Height="340"
         MinWidth="240"
         MinHeight="220"
+        MaxWidth="{Binding Source={x:Static SystemParameters.WorkArea}, Path=Width}"
+        MaxHeight="{Binding Source={x:Static SystemParameters.WorkArea}, Path=Height}"
         WindowStyle="None"
         AllowsTransparency="True"
         Background="Transparent"
@@ -14,8 +16,17 @@
         UseLayoutRounding="True"
         TextOptions.TextFormattingMode="Display">
 
+    <Window.Resources>
+        <!-- 便签内部光标保持固定青色；滚动条滑块与面板边框 / 发光走 PanelAccent*，由全局色调控制。 -->
+        <SolidColorBrush x:Key="AccentBrush" Color="#FF2CC7F7"/>
+        <SolidColorBrush x:Key="AccentHoverBrush" Color="#FF6BDDFF"/>
+        <SolidColorBrush x:Key="AccentSoftBrush" Color="#552CC7F7"/>
+        <Style TargetType="ScrollBar" BasedOn="{StaticResource PanelAccentScrollBarStyle}"/>
+    </Window.Resources>
+
     <Grid>
-        <Border Style="{StaticResource GlassPanelStyle}" Padding="16,12,16,14">
+        <Border x:Name="PanelBorder"
+                Style="{StaticResource GlassPanelStyle}" Padding="16,12,16,14">
             <DockPanel>
 
                 <!-- ===== 标题栏（左键拖动，右键置顶 / 置底） ===== -->
@@ -30,12 +41,15 @@
                     <TextBox Text="{Binding Title, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource PanelTitleTextBoxStyle}"
                              ContextMenu="{Binding ContextMenu, RelativeSource={RelativeSource AncestorType=Grid}}"
-                             VerticalAlignment="Center" Margin="0,0,180,0"/>
+                             VerticalAlignment="Center"
+                             HorizontalAlignment="Left"
+                             TextChanged="TitleBox_TextChanged"
+                             MaxWidth="220"/>
                     <Button Content="✕"
                             HorizontalAlignment="Right"
                             Style="{StaticResource GlassGhostIconButtonStyle}"
                             Click="CloseButton_Click"
-                            ToolTip="删除"/>
+                            ToolTip="关闭（内容会保留到记录面板）"/>
                 </Grid>
 
                 <!-- ===== 便签正文 ===== -->

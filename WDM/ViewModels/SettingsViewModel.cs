@@ -10,7 +10,7 @@ namespace WDM.ViewModels
     ///
     /// 职责：
     ///   - 表盘：默认调节 Dock 透明度；点击便签 / 待办 / 图标模式行后切换目标
-    ///   - 开机自启动、夜间模式、图标模式开关
+    ///   - 开机自启动、图标模式开关（皮肤切换在记录面板的「插件皮肤」中）
     ///   - 科技图标色调（图标的霓虹颜色）
     ///   - 桌面组件入口命令（便签 / 待办）
     ///
@@ -21,8 +21,8 @@ namespace WDM.ViewModels
     /// </summary>
     public class SettingsViewModel : ObservableObject
     {
-        /// <summary>透明度下限：再低会影响可见性与可点击性。</summary>
-        public const double MinOpacity = 0.2;
+        /// <summary>透明度下限：允许完全透明（0），此时面板文字悬浮在桌面上。</summary>
+        public const double MinOpacity = 0.0;
 
         /// <summary>透明度上限。</summary>
         public const double MaxOpacity = 1.0;
@@ -66,7 +66,7 @@ namespace WDM.ViewModels
             : $"{CurrentOpacity:P0}";
 
         /// <summary>表盘两端刻度文字。</summary>
-        public string GaugeMinLabel => GaugeTarget == "Icon" ? "0°" : "20%";
+        public string GaugeMinLabel => GaugeTarget == "Icon" ? "0°" : "0%";
 
         /// <summary>表盘两端刻度文字。</summary>
         public string GaugeMaxLabel => GaugeTarget == "Icon" ? "360°" : "100%";
@@ -108,7 +108,7 @@ namespace WDM.ViewModels
                 if (Math.Abs(SettingsService.Current.IconTone - clamped) < 0.5) return;
 
                 SettingsService.Current.IconTone = clamped;
-                ThemeService.ApplyAccent(clamped);
+                ThemeService.ApplyAccent(clamped);   // 便签 / 待办边框与 Dock 名称颜色即时跟随
                 RaisePropertyChanged(nameof(IconTone));
 
                 if (GaugeTarget == "Icon")
@@ -136,7 +136,7 @@ namespace WDM.ViewModels
             }
         }
 
-        /// <summary>夜间模式：便签 / 待办切换为黑色毛玻璃，立即生效并保存。</summary>
+        /// <summary>暗夜模式：便签 / 待办切换为黑色透明毛玻璃，立即生效并保存。</summary>
         public bool NightMode
         {
             get => _nightMode;
@@ -145,7 +145,7 @@ namespace WDM.ViewModels
                 if (!SetProperty(ref _nightMode, value)) return;
 
                 SettingsService.Current.NightMode = value;
-                ThemeService.Apply(value);
+                ThemeService.ApplyGlass(value);
                 SettingsService.Save();
             }
         }

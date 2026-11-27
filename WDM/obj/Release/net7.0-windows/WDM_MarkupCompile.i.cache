@@ -10,11 +10,11 @@ none
 false
 TRACE;RELEASE;NET;NET7_0;NETCOREAPP
 D:\personalprogram\VSIDE\WinDesktopManager\WDM\WDM\App.xaml
-5601274907
+6-1873360517
 
-27-909273593
+311394521150
 2071946848713
-MainWindow.xaml;Resources\Theme.xaml;Views\NoteWindow.xaml;Views\SettingsWindow.xaml;Views\TodoWindow.xaml;
+MainWindow.xaml;Resources\Theme.xaml;Views\NoteWindow.xaml;Views\RecordsWindow.xaml;Views\SettingsWindow.xaml;Views\TodoWindow.xaml;
 
 True
 
